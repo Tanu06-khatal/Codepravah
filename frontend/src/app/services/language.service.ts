@@ -1,0 +1,345 @@
+import { Injectable, signal } from '@angular/core';
+
+export type Lang = 'en' | 'hi';
+
+/**
+ * Central bilingual dictionary for the APAAR Verify platform.
+ * Every visible UI string is keyed here so the header toggle can
+ * switch the entire application between English and Hindi instantly.
+ */
+const DICT: Record<string, { en: string; hi: string }> = {
+  // ---------- Utility bar ----------
+  'util.screenReader': { en: 'Screen Reader Access', hi: 'स्क्रीन रीडर सुविधा' },
+  'util.tagline': { en: 'Smart Automation • AICTE Regulation Bureau', hi: 'स्मार्ट ऑटोमेशन • AICTE विनियमन ब्यूरो' },
+  'util.langBtn': { en: 'हिन्दी', hi: 'English' },
+  'util.portalLogin': { en: 'Web Portal Login', hi: 'वेब पोर्टल लॉगिन' },
+
+  // ---------- Header ----------
+  'header.engTitle': { en: 'All India Council for Technical Education', hi: 'अखिल भारतीय तकनीकी शिक्षा परिषद्' },
+  'header.moe': { en: 'Department of Higher Education, Ministry of Education, Government of India', hi: 'उच्चतर शिक्षा विभाग, शिक्षा मंत्रालय, भारत सरकार' },
+  'header.apaarTag': { en: 'APAAR ID Integration', hi: 'अपार आयडी एकीकरण' },
+  'header.apaarSub': { en: 'One Nation, One Student ID (DigiLocker & NAD Depository)', hi: 'एक राष्ट्र, एक विद्यार्थी आयडी (डिजीलॉकर व NAD डिपॉझिटरी)' },
+  'header.gateway': { en: 'AICTE National Gateway: Active', hi: 'AICTE राष्ट्रीय गेटवे: सक्रिय' },
+
+  // ---------- Navigation ----------
+  'nav.home': { en: 'Home', hi: 'मुख्यपृष्ठ' },
+  'nav.student': { en: 'Student Portal', hi: 'विद्यार्थी पोर्टल' },
+  'nav.studentBadge': { en: 'Direct APAAR', hi: 'थेट अपार' },
+  'nav.college': { en: 'College Admin', hi: 'महाविद्यालय प्रशासक' },
+  'nav.collegeBadge': { en: 'Intake Audit', hi: 'प्रवेश लेखापरीक्षण' },
+  'nav.aicte': { en: 'AICTE Super Admin', hi: 'AICTE महा प्रशासक' },
+  'nav.aicteBadge': { en: 'Pan-India', hi: 'संपूर्ण भारत' },
+  'nav.verifyBtn': { en: 'Verify APAAR ID', hi: 'अपार आयडी सत्यापित करा' },
+
+  // ---------- Footer ----------
+  'footer.security': { en: 'SECURITY & REGULATORY ARCHITECTURE:', hi: 'सुरक्षा व नियामक आर्किटेक्चर:' },
+  'footer.secEncrypt': { en: 'AES-256 Encrypted', hi: 'AES-256 एन्क्रिप्टेड' },
+  'footer.secConsent': { en: 'Consent-Based Access (DPDP Act)', hi: 'संमती-आधारित प्रवेश (DPDP कायदा)' },
+  'footer.secLedger': { en: 'Audit Logged Ledger', hi: 'ऑडिट नोंदवही' },
+  'footer.secBroker': { en: 'Secure Message Broker', hi: 'सुरक्षित मेसेज ब्रोकर' },
+  'footer.secExcel': { en: 'Excel Report Engine', hi: 'एक्सेल अहवाल इंजिन' },
+  'footer.council': { en: 'All India Council for Technical Education', hi: 'अखिल भारतीय तकनीकी शिक्षा परिषद्' },
+  'footer.bureau': { en: 'Regulation Bureau • APAAR Verify Platform', hi: 'विनियमन ब्यूरो • अपार सत्यापन मंच' },
+  'footer.addr': { en: 'Nelson Mandela Marg, Vasant Kunj, New Delhi - 110070.', hi: 'नेल्सन मंडेला मार्ग, वसंत कुंज, नवी दिल्ली - 110070.' },
+  'footer.portals': { en: 'Platform Portals', hi: 'पोर्टल सुविधा' },
+  'footer.pStudent': { en: 'Student APAAR ID Verification', hi: 'विद्यार्थी अपार आयडी सत्यापन' },
+  'footer.pCollege': { en: 'College Admin & Intake Audit', hi: 'महाविद्यालय प्रशासक व प्रवेश लेखापरीक्षण' },
+  'footer.pAicte': { en: 'AICTE Central Super Admin', hi: 'AICTE मध्यवर्ती महा प्रशासक' },
+  'footer.standards': { en: 'Regulatory Standards', hi: 'नियामक प्रमाण' },
+  'footer.s1': { en: 'DigiLocker & NAD Verified', hi: 'डिजीलॉकर व NAD सत्यापित' },
+  'footer.s2': { en: 'DPDP Act 2023 Compliant', hi: 'DPDP कायदा 2023 अनुपालन' },
+  'footer.s3': { en: 'AICTE APH 2026-27 Norms', hi: 'AICTE APH 2026-27 नियम' },
+  'footer.s4': { en: 'Automated Anomaly Audit', hi: 'स्वयंचलित विसंगती ऑडिट' },
+  'footer.boxTitle': { en: 'APAAR Verify Platform', hi: 'अपार सत्यापन मंच' },
+  'footer.boxCode': { en: 'PS 26263', hi: 'PS 26263' },
+  'footer.boxDesc': { en: 'APAAR ID-Based Student Data Management Platform', hi: 'अपार आयडी-आधारित विद्यार्थी डेटा व्यवस्थापन मंच' },
+  'footer.boxTheme': { en: 'Theme: Smart Automation', hi: 'थीम: स्मार्ट ऑटोमेशन' },
+  'footer.copyright': { en: '© 2026 All India Council for Technical Education (AICTE). All Rights Reserved. | Ministry of Education, Govt. of India', hi: '© 2026 अखिल भारतीय तकनीकी शिक्षा परिषद् (AICTE). सर्व हक्क राखीव. | शिक्षा मंत्रालय, भारत सरकार' },
+
+  // ---------- Landing ----------
+  'land.badge': { en: 'REGULATION BUREAU', hi: 'विनियमन ब्यूरो' },
+  'land.badgeSub': { en: 'Approval Process & Academic Data Synchronization 2026-2027', hi: 'मान्यता प्रक्रिया व शैक्षणिक डेटा सिंक्रनायन 2026-2027' },
+  'land.heroTitle': { en: 'One Nation, One Student ID', hi: 'एक राष्ट्र, एक विद्यार्थी आयडी' },
+  'land.heroSub': { en: 'APAAR Verification Platform for AICTE-Approved Institutions', hi: 'AICTE-मान्यताप्राप्त संस्थांसाठी अपार सत्यापन मंच' },
+  'land.heroDesc': { en: 'National e-Governance architecture powered by DigiLocker & National Academic Depository (NAD) to audit approved intake, manage Supernumerary and NRI quotas, and intercept cross-institution duplicate admissions.', hi: 'मंजूर प्रवेशाची लेखापरीक्षण, अतिरिक्त (Supernumerary) व NRI कोटा व्यवस्थापन आणि संस्थांमधील दुहेरी प्रवेश थांबवण्यासाठी डिजीलॉकर व राष्ट्रीय शैक्षणिक डिपॉझिटरी (NAD) द्वारे संचालित राष्ट्रीय ई-गव्हर्नन्स आर्किटेक्चर.' },
+  'land.pStudent': { en: 'Student Portal', hi: 'विद्यार्थी पोर्टल' },
+  'land.pStudentDesc': { en: 'Direct APAAR ID verification, view ABC credits, and print digital academic pass.', hi: 'थेट अपार आयडी सत्यापन, ABC क्रेडिट पहा आणि डिजिटल शैक्षणिक पास प्रिंट करा.' },
+  'land.pStudentCta': { en: 'Launch Portal ➔', hi: 'पोर्टल सुरू करा ➔' },
+  'land.pCollege': { en: 'College Admin', hi: 'महाविद्यालय प्रशासक' },
+  'land.pCollegeDesc': { en: 'Manage enrolments, upload batches, audit intake capacity, and resolve duplicate flags.', hi: 'प्रवेश व्यवस्थापन, बॅच अपलोड, प्रवेश क्षमता लेखापरीक्षण आणि दुहेरी नोंद निवारा.' },
+  'land.pCollegeCta': { en: 'Manage Enrolments ➔', hi: 'प्रवेश व्यवस्थापित करा ➔' },
+  'land.pAicte': { en: 'AICTE Super Admin', hi: 'AICTE महा प्रशासक' },
+  'land.pAicteDesc': { en: 'Pan-India state analytics, excess enrolment alerts, compliance logs, and Excel reports.', hi: 'संपूर्ण भारताचे राज्यनिहाय विश्लेषण, अतिरिक्त प्रवेश सूचना, अनुपालन नोंदी आणि एक्सेल अहवाल.' },
+  'land.pAicteCta': { en: 'National Dashboard ➔', hi: 'राष्ट्रीय डॅशबोर्ड ➔' },
+  'land.searchLabel': { en: 'Enter 12-digit APAAR ID...', hi: '१२-अंकी अपार आयडी टाका...' },
+  'land.verifyNow': { en: 'Verify Now', hi: 'आता सत्यापित करा' },
+  'land.noticeTitle': { en: 'AICTE Approval Process & Student Record Directives 2026-2027', hi: 'AICTE मान्यता प्रक्रिया व विद्यार्थी नोंद निर्देश 2026-2027' },
+  'land.clause': { en: 'APH Clause 8.4', hi: 'APH कलम 8.4' },
+  'land.n1': { en: 'Mandatory APAAR ID Integration for All Admitted Students', hi: 'सर्व प्रवेशित विद्यार्थ्यांसाठी अपार आयडी एकीकरण अनिवार्य' },
+  'land.n1d': { en: 'Institutions must validate every student\'s 12-digit APAAR ID prior to admission confirmation.', hi: 'प्रवेश निश्चित करण्यापूर्वी संस्थांनी प्रत्येक विद्यार्थ्याचा १२-अंकी अपार आयडी सत्यापित करणे आवश्यक आहे.' },
+  'land.uploadGateway': { en: 'Upload Gateway', hi: 'अपलोड गेटवे' },
+  'land.n2': { en: 'Approved Intake vs Actual Enrolment Verification', hi: 'मंजूर प्रवेश व प्रत्यक्ष नोंदणी सत्यापन' },
+  'land.n2d': { en: 'Automated real-time reconciliation to detect and prevent unauthorized admissions exceeding sanctioned intake.', hi: 'मंजूर प्रवेशापेक्षा जास्त अनधिकृत प्रवेश ओळखण्यासाठी व रोखण्यासाठी स्वयंचलित वास्तविक-वेळ ताळमेळ.' },
+  'land.intakeAudit': { en: 'Intake Audit', hi: 'प्रवेश लेखापरीक्षण' },
+  'land.n3': { en: 'Supernumerary Seats (TFW), NRI & Foreign National (FN) Tracking', hi: 'अतिरिक्त सीट (TFW), NRI व परदेशी नागरिक (FN) मागोवा' },
+  'land.n3d': { en: 'Demarcation of regular vs supernumerary categories to guarantee statutory compliance under regulation guidelines.', hi: 'वैधानिक अनुपालन सुनिश्चित करण्यासाठी नियमित व अतिरिक्त श्रेणींची स्पष्ट विभागणी.' },
+  'land.inspectQuotas': { en: 'Inspect Quotas', hi: 'कोटा तपासा' },
+  'land.supportTitle': { en: 'AICTE Technical Support & Facilitation', hi: 'AICTE तांत्रिक मदत व सुविधा' },
+  'land.helpline': { en: 'Helpline for APAAR ID Integration:', hi: 'अपार आयडी एकीकरणासाठी हेल्पलाईन:' },
+  'land.helplineTime': { en: 'Available 09:30 AM to 06:00 PM (Mon-Fri)', hi: 'सकाळी ९:३० ते संध्याकाळी ६:०० (सोम-शुक्र)' },
+  'land.videoSupport': { en: 'Live Video Support Facilitation:', hi: 'थेट व्हिडिओ मदत सुविधा:' },
+  'land.videoSupportDesc': { en: 'Connect with AICTE Technical Officers for live onboarding and bulk upload guidance.', hi: 'थेट ऑनबोर्डिंग व बल्क अपलोड मार्गदर्शनासाठी AICTE तांत्रिक अधिकाऱ्यांशी संपर्क साधा.' },
+  'land.openSession': { en: 'Open Live Video Session', hi: 'थेट व्हिडिओ सत्र सुरू करा' },
+  'land.stInstitutions': { en: 'Approved Institutions', hi: 'मान्यताप्राप्त संस्था' },
+  'land.stOnboarded': { en: 'Active on Platform', hi: 'मंचावर सक्रिय' },
+  'land.stStudents': { en: 'Total Enrolled Students', hi: 'एकूण नोंदणीकृत विद्यार्थी' },
+  'land.stAy': { en: 'AY 2026-27 Records', hi: 'शै.व. 2026-27 नोंदी' },
+  'land.stVerified': { en: 'APAAR Verified Records', hi: 'अपार सत्यापित नोंदी' },
+  'land.stSynced': { en: 'DigiLocker Synced', hi: 'डिजीलॉकर सिंक' },
+  'land.stDuplicates': { en: 'Duplicates Intercepted', hi: 'दुहेरी नोंदी अडवल्या' },
+  'land.stBlocked': { en: 'Ghost Seats Blocked', hi: 'भूतीय सीट अडवल्या' },
+
+  // ---------- Student portal ----------
+  'stu.title': { en: 'Student APAAR ID Verification Portal', hi: 'विद्यार्थी अपार आयडी सत्यापन पोर्टल' },
+  'stu.subtitle': { en: 'National Academic Depository (NAD) • Ministry of Education, Govt. of India', hi: 'राष्ट्रीय शैक्षणिक डिपॉझिटरी (NAD) • शिक्षा मंत्रालय, भारत सरकार' },
+  'stu.secure': { en: 'AES-256 Encrypted Session', hi: 'AES-256 एन्क्रिप्टेड सत्र' },
+  'stu.idLabel': { en: 'Enter 12-Digit APAAR ID / Academic Identifier', hi: '१२-अंकी अपार आयडी / शैक्षणिक ओळखपत्र टाका' },
+  'stu.idPlaceholder': { en: 'e.g. 123456789012', hi: 'उदा. 123456789012' },
+  'stu.fetchBtn': { en: 'Fetch Student Profile', hi: 'विद्यार्थी प्रोफाइल मिळवा' },
+  'stu.fetching': { en: 'Querying DigiLocker...', hi: 'डिजीलॉकर चौकशी सुरू...' },
+  'stu.consent': { en: 'DPDP Statutory Consent: I hereby give my consent to share my APAAR data and Academic Bank of Credits (ABC) credentials with my admitted AICTE-approved institution.', hi: 'DPDP वैधानिक संमती: मी याद्वारे माझा अपार डेटा व क्रेडिट बँक (ABC) तपशील माझ्या प्रवेशित AICTE-मान्यताप्राप्त संस्थेसोबत शेअर करण्यास संमती देत आहे.' },
+  'stu.errInvalid': { en: 'Please enter a valid 12-digit APAAR ID.', hi: 'कृपया वैध १२-अंकी अपार आयडी टाका.' },
+  'stu.errNotFound': { en: 'No student record found matching APAAR ID. Please verify with your institution.', hi: 'या अपार आयडीशी जुळणारी विद्यार्थी नोंद आढळली नाही. कृपया तुमच्या संस्थेशी सत्यापित करा.' },
+  'stu.timeline': { en: 'Verification Lifecycle Timeline', hi: 'सत्यापन प्रक्रिया कालरेखा' },
+  'stu.t1': { en: '1. Aadhaar e-KYC', hi: '१. आधार ई-केवायसी' },
+  'stu.t1d': { en: 'Linked to Aadhaar', hi: 'आधारशी जोडलेले' },
+  'stu.t2': { en: '2. ABC Depository', hi: '२. ABC डिपॉझिटरी' },
+  'stu.t2d': { en: 'Credits Banked', hi: 'क्रेडिट जमा' },
+  'stu.t3': { en: '3. College Intake Audit', hi: '३. महाविद्यालय प्रवेश लेखापरीक्षण' },
+  'stu.t3ok': { en: 'Seat Approved', hi: 'सीट मंजूर' },
+  'stu.t3dup': { en: 'Duplicate Conflict', hi: 'दुहेरी नोंद संघर्ष' },
+  'stu.t3pend': { en: 'Pending Review', hi: 'तपासणी प्रलंबित' },
+  'stu.t4': { en: '4. AICTE Central Ledger', hi: '४. AICTE केंद्रीय नोंदवही' },
+  'stu.t4ok': { en: 'Permanent Record Stored', hi: 'कायमस्वरूपी नोंद साठवली' },
+  'stu.t4pend': { en: 'Awaiting Final Sync', hi: 'अंतिम सिंकची प्रतीक्षा' },
+  'stu.passLabel': { en: 'Official Verifiable Academic Credential Pass', hi: 'अधिकृत सत्यापित शैक्षणिक प्रमाणपत्र पास' },
+  'stu.passPhoto': { en: 'Student Photograph', hi: 'विद्यार्थी छायाचित्र' },
+  'stu.fName': { en: 'STUDENT FULL NAME', hi: 'विद्यार्थ्याचे पूर्ण नाव' },
+  'stu.fApaar': { en: 'APAAR ID NUMBER', hi: 'अपार आयडी क्रमांक' },
+  'stu.fEnrol': { en: 'Enrolment / Roll No', hi: 'नोंदणी / रोल नंबर' },
+  'stu.fDob': { en: 'Date of Birth', hi: 'जन्म तारीख' },
+  'stu.fGender': { en: 'Gender', hi: 'लिंग' },
+  'stu.fCourse': { en: 'Admitted Course', hi: 'प्रवेशित अभ्यासक्रम' },
+  'stu.fYear': { en: 'Current Year', hi: 'सध्याचे वर्ष' },
+  'stu.fCategory': { en: 'Admission Category', hi: 'प्रवेश श्रेणी' },
+  'stu.fCredits': { en: 'ABC Credits (Academic Bank of Credits)', hi: 'ABC क्रेडिट (क्रेडिट बँक)' },
+  'stu.fCreditsVal': { en: 'Credits', hi: 'क्रेडिट' },
+  'stu.fTenth': { en: 'Class 10th Score', hi: '१०वी गुण' },
+  'stu.fTwelfth': { en: 'Class 12th Score', hi: '१२वी गुण' },
+  'stu.fCollege': { en: 'Admitted Institution', hi: 'प्रवेशित संस्था' },
+  'stu.fCode': { en: 'AICTE Code', hi: 'AICTE कोड' },
+  'stu.fState': { en: 'State', hi: 'राज्य' },
+  'stu.dupFlag': { en: 'Duplicate Enrolment Anomaly Flagged:', hi: 'दुहेरी नोंद विसंगती आढळली:' },
+  'stu.dupConflict': { en: 'Conflicting Institution:', hi: 'संघर्षणारी संस्था:' },
+  'stu.qrTitle': { en: 'Cryptographic QR Seal', hi: 'क्रिप्टोग्राफिक QR सील' },
+  'stu.printBtn': { en: 'Print Pass', hi: 'पास प्रिंट करा' },
+  'stu.passFooter': { en: 'AICTE Compliance Clause 10: APAAR ID & Student ID dual imprint enabled for certificates.', hi: 'AICTE अनुपालन कलम 10: प्रमाणपत्रांसाठी अपार आयडी व विद्यार्थी आयडी दुहेरी छाप सुरू.' },
+  'stu.passMinistry': { en: 'Ministry of Education, Govt of India', hi: 'शिक्षा मंत्रालय, भारत सरकार' },
+
+  // ---------- College portal: auth ----------
+  'col.loginTitle': { en: 'College Admin Portal', hi: 'महाविद्यालय प्रशासक पोर्टल' },
+  'col.loginSub': { en: 'AICTE Regulation Bureau • Academic Verification Platform', hi: 'AICTE विनियमन ब्यूरो • शैक्षणिक सत्यापन मंच' },
+  'col.tabSignin': { en: 'Institutional Sign In', hi: 'संस्थेत प्रवेश' },
+  'col.tabRegister': { en: 'Request Access / Register', hi: 'प्रवेश मागणी / नोंदणी' },
+  'col.googleBtn': { en: 'Continue with Google', hi: 'Google द्वारे सुरू ठेवा' },
+  'col.orCreds': { en: 'OR INSTITUTIONAL CREDENTIALS', hi: 'किंवा संस्थागत खाते तपशील' },
+  'col.emailLabel': { en: 'INSTITUTIONAL EMAIL', hi: 'संस्थागत ईमेल' },
+  'col.passLabel': { en: 'PASSKEY / PASSWORD', hi: 'पासकी / पासवर्ड' },
+  'col.signIn': { en: 'Sign In to Dashboard', hi: 'डॅशबोर्डवर साइन इन करा' },
+  'col.regDesc': { en: 'Register your institution to provision an AICTE APAAR node and intake management portal.', hi: 'AICTE अपार नोड व प्रवेश व्यवस्थापन पोर्टल मिळवण्यासाठी तुमची संस्था नोंदणी करा.' },
+  'col.rPid': { en: 'AICTE PERMANENT INSTITUTE ID (PID)', hi: 'AICTE कायमस्वरूपी संस्था आयडी (PID)' },
+  'col.rName': { en: 'INSTITUTION FULL NAME', hi: 'संस्थेचे पूर्ण नाव' },
+  'col.rEmail': { en: 'OFFICIAL PRINCIPAL / REGISTRAR EMAIL', hi: 'अधिकृत प्राचार्य / नोंदणी अधिकारी ईमेल' },
+  'col.rPass': { en: 'SET PASSKEY / PASSWORD', hi: 'पासकी / पासवर्ड सेट करा' },
+  'col.rState': { en: 'AFFILIATING UNIVERSITY & STATE', hi: 'संलग्नक विद्यापीठ व राज्य' },
+  'col.rIntake': { en: 'SANCTIONED INTAKE CAPACITY', hi: 'मंजूर प्रवेश क्षमता' },
+  'col.rSubmit': { en: 'Submit Institutional Registration', hi: 'संस्था नोंदणी सबमिट करा' },
+  'col.regSuccess': { en: 'Application Submitted! Reference ID generated. Provisioning your dashboard credentials...', hi: 'अर्ज सबमिट झाला! संदर्भ आयडी तयार झाला. डॅशबोर्ड क्रेडेन्शल तयार होत आहे...' },
+  'col.regNotice': { en: 'Institution Registered! Your credentials have been saved. Click "Sign In to Dashboard" below to access your portal.', hi: 'संस्था नोंदणी झाली! तुमचे खाते तपशील जतन झाले आहेत. पोर्टलमध्ये प्रवेशासाठी खाली "डॅशबोर्डवर साइन इन करा" क्लिक करा.' },
+  'col.pendingTitle': { en: 'Application Under Regulatory Review', hi: 'अर्ज नियामक तपासणीत आहे' },
+  'col.pendingDesc': { en: 'Institutional registration is currently under scrutiny by AICTE Regional Bureau. Direct portal approval access will be activated upon ratification.', hi: 'संस्था नोंदणी सध्या AICTE प्रादेशिक ब्यूरो तपासणीत आहे. मान्यतेनंतर पोर्टल प्रवेश सक्रिय होईल.' },
+  'col.errInvalid': { en: 'Invalid institutional credentials. Please sign in with Google or use your registered institutional credentials.', hi: 'अवैध संस्थागत खाते तपशील. कृपया Google द्वारे साइन इन करा किंवा नोंदणीकृत संस्थागत खाते वापरा.' },
+  'col.errNameEmail': { en: 'Please provide college name and official email.', hi: 'कृपया महाविद्यालयाचे नाव व अधिकृत ईमेल द्या.' },
+  'col.googleTitle': { en: 'Sign in with Google', hi: 'Google द्वारे साइन इन करा' },
+  'col.googleSub': { en: 'Choose an account to continue to the College Admin Portal', hi: 'महाविद्यालय प्रशासक पोर्टलवर जाण्यासाठी खाते निवडा' },
+  'col.useAnother': { en: 'Use another account', hi: 'दुसरे खाते वापरा' },
+  'col.googleEmail': { en: 'Your Google email address', hi: 'तुमचा Google ईमेल पत्ता' },
+  'col.googleName': { en: 'Your full name (optional)', hi: 'तुमचे पूर्ण नाव (ऐच्छिक)' },
+  'col.googleContinue': { en: 'Continue ➔', hi: 'सुरू ठेवा ➔' },
+  'col.cancel': { en: 'Cancel', hi: 'रद्द करा' },
+  'col.errGoogleEmail': { en: 'Please enter a valid email address.', hi: 'कृपया वैध ईमेल पत्ता टाका.' },
+  'col.errGoogleDomain': { en: 'Sign-in requires a Google account (gmail.com / googlemail.com or institutional Google Workspace).', hi: 'साइन-इनसाठी Google खाते आवश्यक आहे (gmail.com / googlemail.com किंवा संस्थागत Google Workspace).' },
+
+  // ---------- College portal: dashboard ----------
+  'col.bulkUpload': { en: 'Bulk Upload CSV', hi: 'बल्क अपलोड CSV' },
+  'col.logout': { en: 'Logout', hi: 'लॉगआउट' },
+  'col.mTotal': { en: 'TOTAL ENROLLED', hi: 'एकूण नोंदणी' },
+  'col.mIntake': { en: 'Approved Intake', hi: 'मंजूर प्रवेश' },
+  'col.mVerified': { en: 'VERIFIED RECORDS', hi: 'सत्यापित नोंदी' },
+  'col.mPending': { en: 'PENDING VERIFICATION', hi: 'प्रलंबित सत्यापन' },
+  'col.mPendingSub': { en: 'DigiLocker queued', hi: 'डिजीलॉकर प्रतीक्षारत' },
+  'col.mDuplicate': { en: 'DUPLICATE ENROLMENTS', hi: 'दुहेरी नोंदणी' },
+  'col.mDupSub': { en: 'Cross-institution conflicts ↗', hi: 'संस्थांमधील संघर्ष ↗' },
+  'col.anomaly': { en: 'AICTE Regulatory Anomaly Detected: Admissions Exceed Approved Intake', hi: 'AICTE नियामक विसंगती आढळली: प्रवेश मंजूर क्षमतेपेक्षा जास्त' },
+  'col.dupAlert': { en: 'National Duplicate Alert: Cross-Institution Enrolment Conflicts', hi: 'राष्ट्रीय दुहेरी सूचना: संस्थांमधील नोंदणी संघर्ष' },
+  'col.conflicts': { en: 'Conflicts Flagged', hi: 'संघर्ष चिन्हांकित' },
+  'col.override': { en: 'Override & Verify', hi: 'मान्य करून सत्यापित' },
+  'col.rejectSeat': { en: 'Reject Duplicate Seat', hi: 'दुहेरी सीट नाकारा' },
+  'col.registry': { en: 'Institutional Student Registry', hi: 'संस्थागत विद्यार्थी नोंदणी पत्रक' },
+  'col.registrySub': { en: 'Database-backed records with 12-digit APAAR academic identifiers', hi: 'डेटाबेस-आधारित नोंदी, १२-अंकी अपार शैक्षणिक ओळखपत्रांसह' },
+  'col.searchPh': { en: 'Search by student name or 12-digit APAAR ID...', hi: 'विद्यार्थ्याचे नाव किंवा १२-अंकी अपार आयडी शोधा...' },
+  'col.allCourses': { en: 'All Academic Courses', hi: 'सर्व शैक्षणिक अभ्यासक्रम' },
+  'col.allStatus': { en: 'All Verification Statuses', hi: 'सर्व सत्यापन स्थिती' },
+  'col.thApaar': { en: '12-DIGIT APAAR ID', hi: '१२-अंकी अपार आयडी' },
+  'col.thName': { en: 'STUDENT NAME', hi: 'विद्यार्थी नाव' },
+  'col.thCourse': { en: 'COURSE & BRANCH', hi: 'अभ्यासक्रम व शाखा' },
+  'col.thCategory': { en: 'CATEGORY', hi: 'श्रेणी' },
+  'col.thCredits': { en: 'ABC CREDITS', hi: 'ABC क्रेडिट' },
+  'col.thAdmission': { en: 'ADMISSION DATE', hi: 'प्रवेश तारीख' },
+  'col.thStatus': { en: 'VERIFICATION STATUS', hi: 'सत्यापन स्थिती' },
+  'col.thActions': { en: 'ACTIONS', hi: 'कृती' },
+  'col.creditsUnit': { en: 'Cr', hi: 'क्रे' },
+  'col.year': { en: 'Yr', hi: 'वर्ष' },
+  'col.verify': { en: 'Verify', hi: 'सत्यापित' },
+  'col.reject': { en: 'Reject', hi: 'नाकारा' },
+  'col.noRecords': { en: 'No student records match the specified query and filters.', hi: 'दिलेल्या शोध व फिल्टरशी जुळणारी कोणतीही विद्यार्थी नोंद नाही.' },
+  'col.emptyRegistry': { en: 'No students enrolled yet for your institution. Use "Bulk Upload CSV" to import your institution\'s student records.', hi: 'तुमच्या संस्थेसाठी अद्याप कोणताही विद्यार्थी नोंदणीकृत नाही. संस्थेच्या विद्यार्थी नोंदी आयात करण्यासाठी "बल्क अपलोड CSV" वापरा.' },
+  'col.uploadTitle': { en: 'Bulk Enrolment CSV Upload', hi: 'बल्क नोंदणी CSV अपलोड' },
+  'col.uploadSub': { en: 'AICTE Intake Anomaly Validator • Batch Ingestion Engine', hi: 'AICTE प्रवेश विसंगती सत्यापक • बॅच इनजेशन इंजिन' },
+  'col.dropTitle': { en: 'Select or drag student CSV file here', hi: 'विद्यार्थी CSV फाईल येथे निवडा किंवा ड्रॅग करा' },
+  'col.chooseFile': { en: 'Choose CSV File', hi: 'CSV फाईल निवडा' },
+  'col.downloadTemplate': { en: 'Download Sample CSV Template', hi: 'नमुना CSV साचा डाउनलोड करा' },
+  'col.runValidation': { en: 'Run Batch Validation', hi: 'बॅच सत्यापन सुरू करा' },
+  'col.fileSelected': { en: 'Selected file', hi: 'निवडलेली फाईल' },
+  'col.errNoFile': { en: 'Please select a CSV file first. No file has been imported.', hi: 'कृपया प्रथम CSV फाईल निवडा. कोणतीही फाईल आयात झालेली नाही.' },
+  'col.errBadCsv': { en: 'The selected file could not be parsed as a valid student CSV. Please use the provided template format.', hi: 'निवडलेली फाईल वैध विद्यार्थी CSV म्हणून वाचता आली नाही. कृपया दिलेल्या साच्याचे स्वरूप वापरा.' },
+  'col.errNoRows': { en: 'The CSV file contains no student rows to import.', hi: 'CSV फाईलमध्ये आयात करण्यासाठी कोणतीही विद्यार्थी ओळ नाही.' },
+  'col.uploadOk': { en: 'records imported successfully', hi: 'नोंदी यशस्वीरित्या आयात झाल्या' },
+  'col.uploadDup': { en: 'duplicates skipped', hi: 'दुहेरी नोंदी वगळल्या' },
+  'col.sortHint': { en: 'Click column headers to sort', hi: 'क्रमवारीसाठी स्तंभ शीर्षकावर क्लिक करा' },
+
+  // ---------- AICTE portal ----------
+  'aic.title': { en: 'AICTE Central Super Admin Dashboard', hi: 'AICTE केंद्रीय महा प्रशासक डॅशबोर्ड' },
+  'aic.subtitle': { en: 'Department of Higher Education • AICTE Regulation Bureau • National Monitoring Portal', hi: 'उच्चतर शिक्षा विभाग • AICTE विनियमन ब्यूरो • राष्ट्रीय देखरेख पोर्टल' },
+  'aic.exportExcel': { en: 'Export National Compliance Report (.xlsx)', hi: 'राष्ट्रीय अनुपालन अहवाल डाउनलोड (.xlsx)' },
+  'aic.exportPdf': { en: 'Export PDF Report', hi: 'PDF अहवाल डाउनलोड' },
+  'aic.kInstitutions': { en: 'APPROVED INSTITUTIONS', hi: 'मान्यताप्राप्त संस्था' },
+  'aic.kInstitutionsSub': { en: 'Registered on platform', hi: 'मंचावर नोंदणीकृत' },
+  'aic.kEnrol': { en: 'NATIONAL ENROLMENTS', hi: 'राष्ट्रीय नोंदणी' },
+  'aic.kVerified': { en: 'APAAR VERIFIED RECORDS', hi: 'अपार सत्यापित नोंदी' },
+  'aic.kVerifiedSub': { en: 'synced with DigiLocker', hi: 'डिजीलॉकरसह सिंक' },
+  'aic.kDuplicate': { en: 'DUPLICATES INTERCEPTED', hi: 'दुहेरी नोंदी अडवल्या' },
+  'aic.kDuplicateSub': { en: 'Risk Engine Flags', hi: 'रिस्क इंजिन फ्लॅग' },
+  'aic.chartTitle': { en: 'Pan-India State-Wise APAAR Verification Progress', hi: 'संपूर्ण भारत राज्यनिहाय अपार सत्यापन प्रगती' },
+  'aic.chartSub': { en: 'Comparative student verification statistics across major technical education states', hi: 'प्रमुख तांत्रिक शिक्षण राज्यांमधील तुलनात्मक विद्यार्थी सत्यापन आकडेवारी' },
+  'aic.legendTotal': { en: 'Total Sanctioned Enrolments', hi: 'एकूण मंजूर नोंदणी' },
+  'aic.legendVerified': { en: 'Verified APAAR Records', hi: 'सत्यापित अपार नोंदी' },
+  'aic.synced': { en: 'Synced', hi: 'सिंक' },
+  'aic.tableTitle': { en: 'College-Wise Intake Compliance & Verification Master Table', hi: 'महाविद्यालयनिहाय प्रवेश अनुपालन व सत्यापन मास्टर तक्ता' },
+  'aic.tableSub': { en: 'AICTE regulatory oversight of approved intake versus actual student enrolment', hi: 'मंजूर प्रवेश व प्रत्यक्ष विद्यार्थी नोंदणीवर AICTE नियामक देखरेख' },
+  'aic.searchPh': { en: 'Search College or Code...', hi: 'महाविद्यालय किंवा कोड शोधा...' },
+  'aic.thCode': { en: 'Code', hi: 'कोड' },
+  'aic.thCollege': { en: 'College Name & State', hi: 'महाविद्यालय नाव व राज्य' },
+  'aic.thApproved': { en: 'Approved Intake', hi: 'मंजूर प्रवेश' },
+  'aic.thActual': { en: 'Actual Enrolment', hi: 'प्रत्यक्ष नोंदणी' },
+  'aic.thVariance': { en: 'Intake Variance', hi: 'प्रवेश फरक' },
+  'aic.thTfw': { en: 'Supernumerary (TFW)', hi: 'अतिरिक्त (TFW)' },
+  'aic.thNri': { en: 'NRI / FN', hi: 'NRI / FN' },
+  'aic.thVerifyPct': { en: 'Verification %', hi: 'सत्यापन %' },
+  'aic.thStatusCol': { en: 'Status', hi: 'स्थिती' },
+  'aic.overIntake': { en: 'Over-intake', hi: 'अतिरिक्त प्रवेश' },
+  'aic.compliant': { en: 'Compliant', hi: 'अनुपालन' },
+  'aic.seats': { en: 'Seats', hi: 'सीट' },
+  'aic.underAudit': { en: 'Under Audit', hi: 'लेखापरीक्षणाधीन' },
+  'aic.approved': { en: 'Approved', hi: 'मंजूर' },
+  'aic.anomalyTitle': { en: 'Duplicate Anomaly Stream', hi: 'दुहेरी विसंगती प्रवाह' },
+  'aic.ledgerTitle': { en: 'Immutable System Audit Ledger', hi: 'अपरिवर्तनीय सिस्टम ऑडिट वही' },
+  'aic.ledgerPill': { en: 'AUDIT LOGS', hi: 'ऑडिट नोंदी' },
+  'aic.action': { en: 'Action', hi: 'कृती' },
+  'aic.actor': { en: 'Actor', hi: 'कार्यकर्ता' },
+  'aic.toastExcel': { en: 'Official AICTE National Compliance .xlsx report downloaded successfully!', hi: 'अधिकृत AICTE राष्ट्रीय अनुपालन .xlsx अहवाल यशस्वीरित्या डाउनलोड झाला!' },
+  'aic.toastCsv': { en: 'Official AICTE National Compliance Report (.csv) generated & downloaded!', hi: 'अधिकृत AICTE राष्ट्रीय अनुपालन अहवाल (.csv) तयार व डाउनलोड झाला!' },
+  'aic.toastPdf': { en: 'Official formatted PDF report generated by the platform & downloaded!', hi: 'मंचावरून तयार झालेला औपचारिक PDF अहवाल यशस्वीरित्या डाउनलोड झाला!' },
+  'aic.toastPdfFallback': { en: 'Backend PDF engine unreachable — opening the print view instead.', hi: 'बॅकएंड PDF इंजिन उपलब्ध नाही — छापण्याचे दृश्य उघडत आहे.' },
+  'aic.kPending': { en: 'PENDING VERIFICATION', hi: 'प्रलंबित सत्यापन' },
+  'aic.kPendingSub': { en: 'awaiting DigiLocker check', hi: 'डिजीलॉकर तपासणी प्रतीक्षारत' },
+  'aic.kAudit': { en: 'INSTITUTIONS UNDER AUDIT', hi: 'लेखापरीक्षणाधीन संस्था' },
+  'aic.kAuditSub': { en: 'over-intake flagged', hi: 'अतिरिक्त प्रवेश चिन्हांकित' },
+  'aic.statesCovered': { en: 'States / UTs live', hi: 'राज्ये / केंद्रशासित प्रदेश' },
+  'aic.catGeneral': { en: 'General Seats', hi: 'सामान्य सीट' },
+  'aic.catTfw': { en: 'Supernumerary (TFW)', hi: 'अतिरिक्त (TFW)' },
+  'aic.catNri': { en: 'NRI Quota', hi: 'NRI कोटा' },
+  'aic.catFn': { en: 'Foreign National', hi: 'परदेशी नागरिक' },
+  'aic.analyticsTitle': { en: 'National Seat Distribution by Statutory Category', hi: 'वैधानिक श्रेणीनुसार राष्ट्रीय सीट वाटप' },
+  'aic.analyticsSub': { en: 'Live quota composition of every enrolled seat across the registry', hi: 'नोंदणीपत्रकातील प्रत्येक सीटची थेट कोटा रचना' },
+  'aic.allStates': { en: 'All States / UTs', hi: 'सर्व राज्ये / केंद्रशासित प्रदेश' },
+  'aic.allCompliance': { en: 'All Compliance Status', hi: 'सर्व अनुपालन स्थिती' },
+  'aic.liveMonitor': { en: 'LIVE RISK MONITOR', hi: 'थेट जोखीम देखरेख' },
+  'col.reportBtn': { en: 'Report', hi: 'अहवाल' },
+  'col.toastReport': { en: 'Official student report (PDF) generated and downloaded!', hi: 'अधिकृत विद्यार्थी अहवाल (PDF) तयार व डाउनलोड झाला!' },
+  'std.downloadReport': { en: 'Download Official Report (PDF)', hi: 'अधिकृत अहवाल डाउनलोड (PDF)' },
+  'std.toastReport': { en: 'Your official academic profile report (PDF) has been downloaded!', hi: 'तुमचा अधिकृत शैक्षणिक प्रोफाइल अहवाल (PDF) डाउनलोड झाला आहे!' },
+
+  // ---------- Chatbot ----------
+  'bot.greet': { en: 'Namaste! I am AICTE Sahayak, your automated regulatory assistant. Ask me about APAAR ID, ABC credits, duplicate detection, intake rules, institute registration, student uploads, reports or anything else about this platform.', hi: 'नमस्ते! मी AICTE सहायक आहे, तुमचा स्वयंचलित नियामक सहाय्यक. अपार आयडी, ABC क्रेडिट, दुहेरी नोंद तपासणी, प्रवेश नियम, संस्था नोंदणी, विद्यार्थी अपलोड, अहवाल किंवा या मंचाशी संबंधित कोणत्याही विषयाबद्दल मला विचारा.' },
+  'bot.title': { en: 'AICTE Sahayak Virtual Helpdesk', hi: 'AICTE सहायक आभासी मदत केंद्र' },
+  'bot.sub': { en: 'Government AI Student & Institutional Assistant', hi: 'सरकारी AI विद्यार्थी व संस्थागत सहाय्यक' },
+  'bot.placeholder': { en: 'Ask Sahayak anything...', hi: 'सहायकाला काहीही विचारा...' },
+  'bot.send': { en: 'Send', hi: 'पाठवा' },
+  'bot.q1': { en: 'What is APAAR ID?', hi: 'अपार आयडी काय आहे?' },
+  'bot.q2': { en: 'How are duplicates caught?', hi: 'दुहेरी नोंदी कशा पकडल्या जातात?' },
+  'bot.q3': { en: 'What is the intake rule?', hi: 'प्रवेश नियम काय आहे?' },
+  'bot.q4': { en: 'What are ABC credits?', hi: 'ABC क्रेडिट काय आहेत?' },
+  'bot.q5': { en: 'How to register institute?', hi: 'संस्था नोंदणी कशी करावी?' },
+  'bot.q6': { en: 'How to upload students?', hi: 'विद्यार्थी अपलोड कसे करावे?' },
+  'bot.q7': { en: 'Status meanings?', hi: 'स्थितीचे अर्थ काय?' },
+  'bot.q8': { en: 'Download report?', hi: 'अहवाल कसा डाउनलोड करावा?' },
+};
+
+@Injectable({ providedIn: 'root' })
+export class LanguageService {
+  /** Reactive current language. Templates reading t() re-render on change. */
+  current = signal<Lang>('en');
+
+  constructor() {
+    if (typeof localStorage !== 'undefined') {
+      const saved = localStorage.getItem('apaar_lang');
+      if (saved === 'hi' || saved === 'en') {
+        this.current.set(saved);
+      }
+    }
+  }
+
+  get lang(): Lang {
+    return this.current();
+  }
+
+  get isHindi(): boolean {
+    return this.current() === 'hi';
+  }
+
+  /** Translate a key using the active language; falls back to English text. */
+  t(key: string): string {
+    const entry = DICT[key];
+    if (!entry) return key;
+    return this.current() === 'hi' ? entry.hi : entry.en;
+  }
+
+  toggle(): void {
+    const next: Lang = this.current() === 'en' ? 'hi' : 'en';
+    this.current.set(next);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('apaar_lang', next);
+    }
+  }
+}

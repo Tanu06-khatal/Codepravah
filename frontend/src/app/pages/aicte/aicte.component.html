@@ -1,0 +1,256 @@
+<div class="aicte-container">
+  <div class="header-card gov-card">
+    <div class="header-left">
+      <div class="avatar-badge">🛡️</div>
+      <div>
+        <h1>{{ t('aic.title') }}</h1>
+        <p>{{ t('aic.subtitle') }}</p>
+      </div>
+    </div>
+
+    <div class="header-actions no-print">
+      <button (click)="downloadExcel()" class="gov-btn-saffron">
+        📊 {{ t('aic.exportExcel') }}
+      </button>
+      <button (click)="downloadPdf()" class="gov-btn-primary">
+        📄 {{ t('aic.exportPdf') }}
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="exportToast" class="export-toast">
+    {{ exportToast }}
+  </div>
+
+  <!-- National KPI Cards — live values computed from the database -->
+  <div class="kpi-grid kpi-grid-6">
+    <div class="kpi-card gov-card">
+      <span>{{ t('aic.kInstitutions') }}</span>
+      <h2>{{ kpi.institutions | number }}</h2>
+      <small class="text-green">{{ kpi.statesCovered }} {{ t('aic.statesCovered') }}</small>
+    </div>
+    <div class="kpi-card gov-card">
+      <span>{{ t('aic.kEnrol') }}</span>
+      <h2 class="text-blue">{{ kpi.enrolments | number }}</h2>
+      <small class="text-amber">{{ t('land.stAy') }}</small>
+    </div>
+    <div class="kpi-card gov-card">
+      <span>{{ t('aic.kVerified') }}</span>
+      <h2 class="text-green">{{ kpi.verified | number }}</h2>
+      <small class="text-green">{{ kpi.verifiedPct }}% {{ t('aic.kVerifiedSub') }}</small>
+    </div>
+    <div class="kpi-card gov-card">
+      <span>{{ t('aic.kPending') }}</span>
+      <h2 class="text-amber">{{ kpi.pending | number }}</h2>
+      <small class="text-amber">{{ t('aic.kPendingSub') }}</small>
+    </div>
+    <div class="kpi-card gov-card">
+      <span>{{ t('aic.kDuplicate') }}</span>
+      <h2 class="text-red">{{ kpi.duplicates | number }}</h2>
+      <small class="text-red">{{ t('aic.kDuplicateSub') }}</small>
+    </div>
+    <div class="kpi-card gov-card">
+      <span>{{ t('aic.kAudit') }}</span>
+      <h2 class="text-red">{{ kpi.underAudit | number }}</h2>
+      <small class="text-red">{{ t('aic.kAuditSub') }}</small>
+    </div>
+  </div>
+
+  <!-- State-Wise Official Bar Chart — computed from the database -->
+  <div class="state-card gov-card">
+    <div class="chart-header">
+      <div>
+        <h3>{{ t('aic.chartTitle') }}</h3>
+        <p class="sub-text">{{ t('aic.chartSub') }}</p>
+      </div>
+      <div class="chart-legend">
+        <span class="legend-item"><span class="legend-badge total-badge"></span> {{ t('aic.legendTotal') }}</span>
+        <span class="legend-item"><span class="legend-badge verified-badge"></span> {{ t('aic.legendVerified') }}</span>
+      </div>
+    </div>
+
+    <div class="bar-chart-wrapper" *ngIf="stateData.length > 0">
+      <!-- Y-Axis Scale -->
+      <div class="y-axis">
+        <span>{{ maxStateVal | number }}</span>
+        <span>{{ (maxStateVal * 0.75) | number }}</span>
+        <span>{{ (maxStateVal * 0.5) | number }}</span>
+        <span>{{ (maxStateVal * 0.25) | number }}</span>
+        <span>0</span>
+      </div>
+
+      <!-- Chart Plot Area -->
+      <div class="chart-plot">
+        <div class="grid-line" style="bottom: 100%;"></div>
+        <div class="grid-line" style="bottom: 75%;"></div>
+        <div class="grid-line" style="bottom: 50%;"></div>
+        <div class="grid-line" style="bottom: 25%;"></div>
+        <div class="grid-line baseline" style="bottom: 0%;"></div>
+
+        <!-- Standing Bar Columns -->
+        <div class="columns-container">
+          <div *ngFor="let s of stateData" class="state-column-group">
+            <!-- Dual Standing Bars -->
+            <div class="dual-bars">
+              <!-- Bar 1: Total Enrolments -->
+              <div class="standing-bar total-bar"
+                   [style.height.%]="(s.total / maxStateVal * 100)"
+                   [title]="s.state + ': ' + (s.total | number)">
+              </div>
+
+              <!-- Bar 2: Verified Records -->
+              <div class="standing-bar verified-bar"
+                   [style.height.%]="(s.verified / maxStateVal * 100)"
+                   [title]="s.state + ': ' + (s.verified | number) + ' (' + (s.verified / (s.total || 1) * 100).toFixed(1) + '%)'">
+              </div>
+            </div>
+
+            <!-- X-Axis Labels -->
+            <div class="x-axis-info">
+              <span class="state-name">{{ s.state }}</span>
+              <span class="state-sync">{{ (s.verified / (s.total || 1) * 100).toFixed(1) }}% {{ t('aic.synced') }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p *ngIf="stateData.length === 0" class="sub-text" style="padding: 20px 0;">—</p>
+  </div>
+
+  <!-- National Analytics: statutory quota distribution -->
+  <div class="analytics-card gov-card" *ngIf="categoryData.length > 0">
+    <div class="chart-header">
+      <div>
+        <h3>{{ t('aic.analyticsTitle') }}</h3>
+        <p class="sub-text">{{ t('aic.analyticsSub') }}</p>
+      </div>
+    </div>
+    <div class="analytics-grid">
+      <div *ngFor="let c of categoryData" class="analytics-row">
+        <div class="analytics-label">
+          <span class="analytics-dot" [style.background]="c.color"></span>
+          {{ c.label }}
+        </div>
+        <div class="analytics-bar-track">
+          <div class="analytics-bar" [style.width.%]="(c.count / (kpi.enrolments || 1) * 100)" [style.background]="c.color"></div>
+        </div>
+        <div class="analytics-value">{{ c.count | number }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Master College Registry Table -->
+  <div class="table-card gov-card">
+    <div class="table-header">
+      <div>
+        <h3>{{ t('aic.tableTitle') }}</h3>
+        <p>{{ t('aic.tableSub') }}</p>
+      </div>
+      <div class="filter-row">
+        <select [(ngModel)]="filterState" (change)="filterColleges()" class="filter-select">
+          <option value="all">{{ t('aic.allStates') }}</option>
+          <option *ngFor="let st of states" [value]="st">{{ st }}</option>
+        </select>
+        <select [(ngModel)]="filterCompliance" (change)="filterColleges()" class="filter-select">
+          <option value="all">{{ t('aic.allCompliance') }}</option>
+          <option value="approved">{{ t('aic.approved') }}</option>
+          <option value="audit">{{ t('aic.underAudit') }}</option>
+        </select>
+        <input type="text" [(ngModel)]="searchCollege" (input)="filterColleges()" [placeholder]="t('aic.searchPh')" />
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="gov-table">
+        <thead>
+          <tr>
+            <th class="sortable" (click)="sortBy('code')">{{ t('aic.thCode') }} <span class="sort-ind" *ngIf="sortColumn==='code'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
+            <th class="sortable" (click)="sortBy('name')">{{ t('aic.thCollege') }} <span class="sort-ind" *ngIf="sortColumn==='name'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
+            <th class="sortable" (click)="sortBy('approvedIntake')">{{ t('aic.thApproved') }} <span class="sort-ind" *ngIf="sortColumn==='approvedIntake'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
+            <th class="sortable" (click)="sortBy('actualEnrolment')">{{ t('aic.thActual') }} <span class="sort-ind" *ngIf="sortColumn==='actualEnrolment'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
+            <th>{{ t('aic.thVariance') }}</th>
+            <th class="sortable" (click)="sortBy('supernumeraryQuota')">{{ t('aic.thTfw') }} <span class="sort-ind" *ngIf="sortColumn==='supernumeraryQuota'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
+            <th>{{ t('aic.thNri') }}</th>
+            <th class="sortable" (click)="sortBy('verifiedCount')">{{ t('aic.thVerifyPct') }} <span class="sort-ind" *ngIf="sortColumn==='verifiedCount'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
+            <th>{{ t('aic.thStatusCol') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of filteredColleges">
+            <td class="code-col font-mono text-bold">{{ c.code }}</td>
+            <td class="college-info-cell">
+              <div class="college-name-text">{{ c.name }}</div>
+              <div class="college-location-text">{{ c.city }}, {{ c.state }}</div>
+            </td>
+            <td class="text-center">{{ c.approvedIntake }}</td>
+            <td class="text-center font-bold text-navy">{{ c.actualEnrolment }}</td>
+            <td class="text-center">
+              <span *ngIf="c.actualEnrolment > c.approvedIntake" class="variance-badge over">
+                +{{ c.actualEnrolment - c.approvedIntake }} ({{ t('aic.overIntake') }})
+              </span>
+              <span *ngIf="c.actualEnrolment <= c.approvedIntake" class="variance-badge ok">
+                {{ t('aic.compliant') }}
+              </span>
+            </td>
+            <td class="text-center text-purple font-semibold">{{ c.supernumeraryQuota }} {{ t('aic.seats') }}</td>
+            <td class="text-center text-amber font-semibold">{{ c.nriCount }} NRI / {{ c.fnCount }} FN</td>
+            <td class="text-center font-bold text-green">
+              {{ (c.verifiedCount / (c.actualEnrolment || 1) * 100).toFixed(1) }}%
+            </td>
+            <td class="text-center">
+              <span class="status-pill" [ngClass]="c.actualEnrolment > c.approvedIntake ? 'audit' : 'ok'">
+                {{ c.actualEnrolment > c.approvedIntake ? t('aic.underAudit') : t('aic.approved') }}
+              </span>
+            </td>
+          </tr>
+
+          <tr *ngIf="filteredColleges.length === 0">
+            <td colspan="9" class="text-center" style="color: #94a3b8; padding: 24px;">
+              {{ t('col.noRecords') }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Anomaly & Fraud Engine Log & Audit Ledger — anomaly stream built from live DB records -->
+  <div class="logs-grid">
+    <div class="log-box gov-card">
+      <div class="box-head">
+        <h3>🚨 {{ t('aic.anomalyTitle') }}</h3>
+        <span class="stream-pill live-pill"><span class="live-dot"></span> {{ t('aic.liveMonitor') }}</span>
+      </div>
+      <div class="log-entries">
+        <div *ngFor="let a of anomalies" class="log-item" [ngClass]="a.severity === 'CRITICAL' ? 'critical' : 'high'">
+          <strong>{{ a.type }} ({{ a.severity }})</strong>
+          <p>{{ a.description }}</p>
+          <small>{{ t('aic.action') }}: {{ a.action }}</small>
+        </div>
+        <div *ngIf="anomalies.length === 0" class="log-item normal">
+          <p style="margin: 0;">✅ {{ t('aic.compliant') }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="log-box gov-card">
+      <div class="box-head">
+        <h3>📜 {{ t('aic.ledgerTitle') }}</h3>
+        <span class="stream-pill blue">{{ t('aic.ledgerPill') }}</span>
+      </div>
+      <div class="log-entries">
+        <div *ngFor="let log of auditLogs" class="log-item normal">
+          <div class="log-meta">
+            <span>{{ log.timestamp | date:'short' }}</span>
+            <strong>{{ log.action }}</strong>
+          </div>
+          <p>APAAR ID: <strong>{{ log.apaarId }}</strong> ({{ log.studentName }})</p>
+          <small>{{ t('aic.actor') }}: {{ log.actor }} • IP: {{ log.ipAddress }}</small>
+        </div>
+        <div *ngIf="auditLogs.length === 0" class="log-item normal">
+          <p style="margin: 0;">—</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

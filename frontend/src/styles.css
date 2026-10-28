@@ -1,0 +1,89 @@
+/* AICTE Official Government Styling - Angular Material */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+:root {
+  --aicte-navy: #0F2C61;
+  --aicte-deep: #091B3D;
+  --aicte-saffron: #F59E0B;
+  --aicte-saffron-dark: #D97706;
+  --aicte-bg: #F8FAFC;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--aicte-bg);
+  color: #1e293b;
+  min-height: 100vh;
+}
+
+.tricolor-stripe {
+  background: linear-gradient(to right, #FF9933 33.3%, #ffffff 33.3%, #ffffff 66.6%, #138808 66.6%);
+  height: 4px;
+  width: 100%;
+}
+
+.gov-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(15, 44, 97, 0.08);
+}
+
+.gov-btn-primary {
+  background-color: #0F2C61;
+  color: #ffffff;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.gov-btn-primary:hover {
+  background-color: #1A448A;
+}
+
+.gov-btn-saffron {
+  background: linear-gradient(to right, #F59E0B, #D97706);
+  color: #0B1E40;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.gov-btn-saffron:hover {
+  opacity: 0.95;
+}
+
+/* Print Styles — clean, properly formatted report output */
+@media print {
+  @page { size: A4 portrait; margin: 14mm 12mm; }
+
+  /* Hide the entire application chrome so only the report/credential pass prints */
+  .tricolor-stripe,
+  .top-utility-bar,
+  .main-header,
+  .main-nav,
+  .main-footer,
+  .bot-floating-widget,
+  .no-print {
+    display: none !important;
+  }
+
+  body { background: #fff !important; }
+  .page-content { min-height: auto; }
+
+  .print-card {
+    border: 2px solid #0F2C61 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+
+  /* Keep colors (status badges, header navy) in the printed report */
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+}

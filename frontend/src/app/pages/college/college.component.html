@@ -1,0 +1,500 @@
+<div class="college-container">
+  <!-- Login Screen -->
+  <div *ngIf="!isAuthenticated" class="login-wrapper">
+    <div class="login-card gov-card">
+      <!-- Institutional Emblem -->
+      <div class="login-emblem-wrap">
+        <span class="login-emblem">🏛️</span>
+      </div>
+
+      <h2>{{ t('col.loginTitle') }}</h2>
+      <p class="sub-text">{{ t('col.loginSub') }}</p>
+
+      <!-- Navigation Tabs -->
+      <div class="auth-tabs">
+        <button
+          type="button"
+          class="tab-btn"
+          [class.active]="activeTab === 'signin'"
+          (click)="activeTab = 'signin'; loginError = ''; pendingNotice = ''"
+        >
+          {{ t('col.tabSignin') }}
+        </button>
+        <button
+          type="button"
+          class="tab-btn"
+          [class.active]="activeTab === 'register'"
+          (click)="activeTab = 'register'; loginError = ''; pendingNotice = ''"
+        >
+          {{ t('col.tabRegister') }}
+        </button>
+      </div>
+
+      <!-- Tab 1: Institutional Sign In -->
+      <div *ngIf="activeTab === 'signin'">
+        <!-- Google Authentication Button (works for ANY Google account) -->
+        <button type="button" class="google-auth-btn" (click)="openGoogleModal()">
+          <svg class="google-svg" viewBox="0 0 24 24" width="20" height="20">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          <span>{{ t('col.googleBtn') }}</span>
+        </button>
+
+        <!-- Divider -->
+        <div class="auth-divider">
+          <span class="divider-line"></span>
+          <span class="divider-label">{{ t('col.orCreds') }}</span>
+          <span class="divider-line"></span>
+        </div>
+
+        <!-- Login Form -->
+        <form (ngSubmit)="login()" class="login-form">
+          <div class="field">
+            <label>{{ t('col.emailLabel') }}</label>
+            <input
+              type="email"
+              [(ngModel)]="email"
+              name="email"
+              class="text-input"
+              placeholder="principal@yourcollege.edu.in"
+            />
+          </div>
+
+          <div class="field">
+            <label>{{ t('col.passLabel') }}</label>
+            <input
+              type="password"
+              [(ngModel)]="password"
+              name="password"
+              class="text-input"
+              placeholder="••••••"
+            />
+          </div>
+
+          <!-- Registration Success Notice -->
+          <div *ngIf="regNotice" class="reg-notice-banner">
+            {{ regNotice }}
+          </div>
+
+          <!-- Pending Approval Banner -->
+          <div *ngIf="pendingNotice" class="pending-banner">
+            <div class="pending-title">⏳ {{ t('col.pendingTitle') }}</div>
+            <p>{{ t('col.pendingDesc') }}</p>
+          </div>
+
+          <!-- Login Error Banner -->
+          <div *ngIf="loginError" class="login-err">
+            ⚠️ {{ loginError }}
+          </div>
+
+          <button type="submit" class="sign-in-btn">{{ t('col.signIn') }}</button>
+        </form>
+      </div>
+
+      <!-- Tab 2: Request Access / Register Form -->
+      <div *ngIf="activeTab === 'register'" class="register-tab-content">
+        <p class="tab-desc">{{ t('col.regDesc') }}</p>
+        <form (ngSubmit)="submitRegistration()" class="register-form">
+          <div class="field">
+            <label>{{ t('col.rPid') }}</label>
+            <input
+              type="text"
+              [(ngModel)]="regData.pid"
+              name="pid"
+              class="text-input"
+              placeholder="e.g. 1-33291823"
+              required
+            />
+          </div>
+          <div class="field">
+            <label>{{ t('col.rName') }}</label>
+            <input
+              type="text"
+              [(ngModel)]="regData.name"
+              name="name"
+              class="text-input"
+              placeholder="e.g. Pune Institute of Engineering & Technology"
+              required
+            />
+          </div>
+          <div class="field">
+            <label>{{ t('col.rEmail') }}</label>
+            <input
+              type="email"
+              [(ngModel)]="regData.email"
+              name="regEmail"
+              class="text-input"
+              placeholder="e.g. principal@piet.edu.in"
+              required
+            />
+          </div>
+          <div class="field">
+            <label>{{ t('col.rPass') }}</label>
+            <input
+              type="password"
+              [(ngModel)]="regData.password"
+              name="regPassword"
+              class="text-input"
+              placeholder="••••••"
+              required
+            />
+          </div>
+          <div class="field">
+            <label>{{ t('col.rState') }}</label>
+            <input
+              type="text"
+              [(ngModel)]="regData.state"
+              name="state"
+              class="text-input"
+              placeholder="e.g. Savitribai Phule Pune University, Maharashtra"
+              required
+            />
+          </div>
+          <div class="field">
+            <label>{{ t('col.rIntake') }}</label>
+            <input
+              type="number"
+              [(ngModel)]="regData.approvedIntake"
+              name="approvedIntake"
+              class="text-input"
+              placeholder="e.g. 600"
+              required
+            />
+          </div>
+
+          <div *ngIf="regSuccess" class="reg-success">
+            ✅ {{ t('col.regSuccess') }}
+          </div>
+
+          <button type="submit" class="sign-in-btn">{{ t('col.rSubmit') }}</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Google OAuth Account Modal — accepts ANY Google account -->
+  <div *ngIf="showGoogleModal" class="modal-overlay" (click)="closeGoogleModal($event)">
+    <div class="google-modal-card" (click)="$event.stopPropagation()">
+      <div class="google-modal-header">
+        <svg class="google-svg" viewBox="0 0 24 24" width="28" height="28">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <div class="google-modal-title">{{ t('col.googleTitle') }}</div>
+        <p class="google-modal-sub">{{ t('col.googleSub') }}</p>
+      </div>
+
+      <!-- "Use another account": any Google account can sign in -->
+      <div class="google-another-account">
+        <div class="another-icon">👤</div>
+        <div class="another-body">
+          <label>{{ t('col.useAnother') }}</label>
+          <input
+            type="email"
+            [(ngModel)]="googleEmail"
+            name="googleEmail"
+            class="text-input"
+            placeholder="your.name@gmail.com"
+            (keyup.enter)="confirmGoogleSignIn()"
+          />
+          <input
+            type="text"
+            [(ngModel)]="googleName"
+            name="googleName"
+            class="text-input"
+            [placeholder]="t('col.googleName')"
+            (keyup.enter)="confirmGoogleSignIn()"
+          />
+        </div>
+      </div>
+
+      <div *ngIf="googleError" class="login-err">⚠️ {{ googleError }}</div>
+
+      <div class="google-modal-footer">
+        <button type="button" class="google-cancel-btn" (click)="cancelGoogle()">{{ t('col.cancel') }}</button>
+        <button type="button" class="google-fast-btn" (click)="confirmGoogleSignIn()">
+          {{ t('col.googleContinue') }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard View -->
+  <div *ngIf="isAuthenticated" class="dashboard-wrapper">
+    <!-- Top institutional bar -->
+    <div class="top-bar gov-card">
+      <div class="bar-left">
+        <div class="inst-icon">🏛️</div>
+        <div>
+          <div class="inst-heading-row">
+            <h2>{{ college?.name }}</h2>
+            <span *ngIf="isGoogleUser" class="google-auth-tag">
+              <svg viewBox="0 0 24 24" width="14" height="14">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <span>{{ loggedInUser }}</span>
+            </span>
+          </div>
+          <span class="code-badge">{{ college?.code }}</span>
+          <span class="tag">{{ t('land.badgeSub') }}</span>
+        </div>
+      </div>
+      <div class="bar-actions">
+        <button (click)="openUpload()" class="gov-btn-primary">📤 {{ t('col.bulkUpload') }}</button>
+        <button (click)="logout()" class="logout-btn">{{ t('col.logout') }}</button>
+      </div>
+    </div>
+
+    <!-- 4 Metric Cards — live values from the database -->
+    <div class="metrics-grid">
+      <div class="metric-card gov-card" (click)="statusFilter = 'all'; filterStudents()" style="cursor: pointer;" title="Click to view all enrolments">
+        <span class="m-label">{{ t('col.mTotal') }}</span>
+        <div class="m-val">{{ college?.actualEnrolment ?? 0 }}</div>
+        <span class="m-sub">{{ t('col.mIntake') }}: <strong>{{ college?.approvedIntake ?? 0 }}</strong></span>
+      </div>
+
+      <div class="metric-card gov-card border-green" (click)="statusFilter = 'verified'; filterStudents()" style="cursor: pointer;" title="Click to filter verified records">
+        <span class="m-label text-green">{{ t('col.mVerified') }}</span>
+        <div class="m-val text-green">{{ college?.verifiedCount ?? 0 }}</div>
+        <span class="m-sub text-green" *ngIf="(college?.actualEnrolment || 0) > 0">{{ ((college?.verifiedCount || 0) / (college?.actualEnrolment || 1) * 100).toFixed(1) }}%</span>
+      </div>
+
+      <div class="metric-card gov-card border-amber" (click)="statusFilter = 'pending'; filterStudents()" style="cursor: pointer;" title="Click to filter pending records">
+        <span class="m-label text-amber">{{ t('col.mPending') }}</span>
+        <div class="m-val text-amber">{{ college?.pendingCount ?? 0 }}</div>
+        <span class="m-sub text-amber">{{ t('col.mPendingSub') }}</span>
+      </div>
+
+      <div class="metric-card gov-card border-red" (click)="statusFilter = 'duplicate'; filterStudents()" style="cursor: pointer;" title="Click to filter duplicate records">
+        <span class="m-label text-red">{{ t('col.mDuplicate') }}</span>
+        <div class="m-val text-red">{{ college?.duplicateCount ?? 0 }}</div>
+        <span class="m-sub text-red">{{ t('col.mDupSub') }}</span>
+      </div>
+    </div>
+
+    <!-- AICTE Intake Anomaly Banner -->
+    <div class="intake-warning" *ngIf="(college?.actualEnrolment || 0) > (college?.approvedIntake || 0)">
+      ⚠️ <strong>{{ t('col.anomaly') }}</strong>
+      <p>
+        {{ college?.actualEnrolment }} / {{ college?.approvedIntake }} →
+        <strong>+{{ (college?.actualEnrolment || 0) - (college?.approvedIntake || 0) }}</strong>
+      </p>
+    </div>
+
+    <!-- Cross-Institution Duplicate Alert Section -->
+    <div class="duplicate-alert-section gov-card" *ngIf="duplicates.length > 0">
+      <div class="dup-header">
+        <h3>🚨 {{ t('col.dupAlert') }}</h3>
+        <span class="conflict-badge">{{ duplicates.length }} {{ t('col.conflicts') }}</span>
+      </div>
+
+      <div class="dup-grid">
+        <div *ngFor="let dup of duplicates" class="dup-card">
+          <div class="dup-row">
+            <strong>{{ dup.name }}</strong>
+            <span class="dup-id">{{ dup.apaarId }}</span>
+          </div>
+          <p class="dup-course">{{ dup.course }} ({{ t('col.year') }} {{ dup.academicYear }})</p>
+          <div class="dup-details">
+            <span class="detail-label">Conflict:</span> {{ dup.flagReason }}
+            <p>{{ t('stu.dupConflict') }} <strong>{{ dup.duplicateCollegeName }} ({{ dup.duplicateCollegeId }})</strong></p>
+          </div>
+          <div class="dup-actions">
+            <button (click)="verify(dup.apaarId)" class="btn-verify" style="padding: 6px 14px; font-size: 11px; margin-right: 8px;">{{ t('col.override') }}</button>
+            <button (click)="reject(dup.apaarId)" class="reject-btn">{{ t('col.rejectSeat') }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Institutional Student Registry -->
+    <div class="registry-card gov-card">
+      <!-- Header and Search -->
+      <div class="registry-top-header">
+        <div>
+          <h3 class="registry-title">{{ t('col.registry') }}</h3>
+          <p class="registry-sub">{{ t('col.registrySub') }}</p>
+        </div>
+        <div class="search-wrap">
+          <input
+            type="text"
+            [(ngModel)]="searchQuery"
+            (input)="filterStudents()"
+            [placeholder]="t('col.searchPh')"
+            class="search-bar-input"
+          />
+        </div>
+      </div>
+
+      <!-- Dropdown Filter Bar -->
+      <div class="filter-controls-row">
+        <select [(ngModel)]="courseFilter" (change)="filterStudents()" class="filter-dropdown">
+          <option value="all">{{ t('col.allCourses') }}</option>
+          <option value="Computer Science">B.Tech Computer Science & Engineering</option>
+          <option value="Mechanical">B.Tech Mechanical Engineering</option>
+          <option value="Civil">B.Tech Civil Engineering</option>
+          <option value="Information Technology">B.Tech Information Technology</option>
+          <option value="Electronics">B.Tech Electronics & Communication</option>
+        </select>
+
+        <select [(ngModel)]="statusFilter" (change)="filterStudents()" class="filter-dropdown">
+          <option value="all">{{ t('col.allStatus') }}</option>
+          <option value="verified">{{ t('col.verify') }}</option>
+          <option value="duplicate">{{ t('col.mDuplicate') }}</option>
+          <option value="pending">{{ t('col.mPending') }}</option>
+          <option value="rejected">{{ t('col.reject') }}</option>
+        </select>
+
+        <span class="sort-hint">{{ t('col.sortHint') }}</span>
+      </div>
+
+      <!-- Registry Table -->
+      <div class="table-container">
+        <table class="registry-table">
+          <thead>
+            <tr>
+              <th class="sortable" (click)="setSort('apaarId')">{{ t('col.thApaar') }} {{ sortIcon('apaarId') }}</th>
+              <th class="sortable" (click)="setSort('name')">{{ t('col.thName') }} {{ sortIcon('name') }}</th>
+              <th class="sortable" (click)="setSort('course')">{{ t('col.thCourse') }} {{ sortIcon('course') }}</th>
+              <th class="sortable" (click)="setSort('category')">{{ t('col.thCategory') }} {{ sortIcon('category') }}</th>
+              <th class="sortable" (click)="setSort('abcCredits')">{{ t('col.thCredits') }} {{ sortIcon('abcCredits') }}</th>
+              <th class="sortable" (click)="setSort('admissionDate')">{{ t('col.thAdmission') }} {{ sortIcon('admissionDate') }}</th>
+              <th class="sortable" (click)="setSort('status')">{{ t('col.thStatus') }} {{ sortIcon('status') }}</th>
+              <th>{{ t('col.thActions') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let s of filteredStudents">
+              <!-- 12-Digit APAAR ID -->
+              <td class="apaar-cell font-mono">{{ s.apaarId }}</td>
+
+              <!-- Student Name -->
+              <td class="student-name-cell">
+                {{ s.name }}
+              </td>
+
+              <!-- Course & Branch -->
+              <td class="course-cell">
+                {{ s.course }} ({{ t('col.year') }} {{ s.academicYear }})
+              </td>
+
+              <!-- Category Badge -->
+              <td>
+                <span class="cat-pill">{{ s.category }}</span>
+              </td>
+
+              <!-- ABC Credits (measured in credits: 1 credit = 15 learning hours) -->
+              <td class="credits-cell font-bold" title="Academic Bank of Credits — 1 credit = 15 learning hours (UGC)">
+                {{ s.abcCredits }} {{ t('col.creditsUnit') }}
+              </td>
+
+              <!-- Admission Date -->
+              <td class="date-cell">
+                {{ s.admissionDate }}
+              </td>
+
+              <!-- Verification Status Badge -->
+              <td>
+                <span
+                  class="status-pill"
+                  [ngClass]="{
+                    'status-verified': s.status === 'verified',
+                    'status-duplicate': s.status === 'duplicate',
+                    'status-pending': s.status === 'pending',
+                    'status-rejected': s.status === 'rejected'
+                  }"
+                >
+                  {{ s.status | uppercase }}
+                </span>
+              </td>
+
+              <!-- Actions -->
+              <td class="action-cell">
+                <!-- Official student report -->
+                <div class="action-btn-single" style="margin-bottom: 6px;">
+                  <button (click)="downloadReport(s.apaarId)" class="btn-report" title="Generate official student report (PDF)">📄 {{ t('col.reportBtn') }}</button>
+                </div>
+
+                <!-- VERIFIED: Red Reject button -->
+                <div *ngIf="s.status === 'verified'" class="action-btn-single">
+                  <button (click)="reject(s.apaarId)" class="btn-reject" title="Revoke admission / Reject seat">{{ t('col.reject') }}</button>
+                </div>
+
+                <!-- PENDING: Stacked Verify and Reject buttons -->
+                <div *ngIf="s.status === 'pending'" class="pending-btn-stack">
+                  <button (click)="verify(s.apaarId)" class="btn-verify" title="Approve & Verify student">{{ t('col.verify') }}</button>
+                  <button (click)="reject(s.apaarId)" class="btn-reject" title="Reject enrolment">{{ t('col.reject') }}</button>
+                </div>
+
+                <!-- DUPLICATE: Stacked Verify and Reject buttons to resolve conflicts -->
+                <div *ngIf="s.status === 'duplicate'" class="pending-btn-stack">
+                  <button (click)="verify(s.apaarId)" class="btn-verify" title="Override duplicate flag & Verify">{{ t('col.verify') }}</button>
+                  <button (click)="reject(s.apaarId)" class="btn-reject" title="Reject conflicting seat">{{ t('col.reject') }}</button>
+                </div>
+
+                <!-- REJECTED: Green Verify button to reinstate -->
+                <div *ngIf="s.status === 'rejected'" class="action-btn-single">
+                  <button (click)="verify(s.apaarId)" class="btn-verify" title="Reinstate / Verify student">{{ t('col.verify') }}</button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Empty registry (newly registered institution) -->
+            <tr *ngIf="students.length === 0">
+              <td colspan="8" class="empty-registry">
+                📥 {{ t('col.emptyRegistry') }}
+                <div><button (click)="openUpload()" class="gov-btn-saffron" style="margin-top: 10px;">📤 {{ t('col.bulkUpload') }}</button></div>
+              </td>
+            </tr>
+
+            <tr *ngIf="students.length > 0 && filteredStudents.length === 0">
+              <td colspan="8" class="no-records">
+                {{ t('col.noRecords') }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Bulk Upload Modal (real file import) -->
+    <div *ngIf="showUpload" class="modal-overlay">
+      <div class="modal-card gov-card">
+        <div class="modal-header">
+          <h3>{{ t('col.uploadTitle') }}</h3>
+          <button (click)="showUpload = false" class="close-btn">✕</button>
+        </div>
+        <p class="sub-text">{{ t('col.uploadSub') }}</p>
+
+        <div class="drop-zone" (drop)="onDropFile($event)" (dragover)="onDragOver($event)">
+          <p>{{ t('col.dropTitle') }}</p>
+          <label class="choose-file-btn">
+            📄 {{ t('col.chooseFile') }}
+            <input type="file" accept=".csv,text/csv" (change)="onFileSelected($event)" hidden />
+          </label>
+          <div class="template-row">
+            <button type="button" (click)="downloadTemplate()" class="template-btn">⬇️ {{ t('col.downloadTemplate') }}</button>
+          </div>
+        </div>
+
+        <div *ngIf="selectedFile" class="file-chip">📎 {{ t('col.fileSelected') }}: <strong>{{ selectedFile.name }}</strong></div>
+
+        <div *ngIf="uploadNotice" class="upload-notice" [class.upload-notice-err]="uploadError">
+          {{ uploadNotice }}
+        </div>
+
+        <button (click)="runBatchValidation()" class="gov-btn-saffron full-width-btn" [disabled]="uploadBusy">
+          {{ uploadBusy ? '...' : t('col.runValidation') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

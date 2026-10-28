@@ -1,0 +1,183 @@
+<!-- Tricolor Stripe -->
+<div class="tricolor-stripe no-print"></div>
+
+<!-- Top Utility Bar matching aicte.gov.in screenshot -->
+<div class="top-utility-bar no-print">
+  <div class="utility-inner">
+    <div class="utility-left">
+      <span class="date-str">{{ currentDateStr }}</span>
+      <span class="sep">|</span>
+      <span>🔊 {{ t('util.screenReader') }}</span>
+      <span class="sep">|</span>
+      <span>{{ t('util.tagline') }}</span>
+    </div>
+    <div class="utility-right">
+      <button type="button" class="lang-tag" (click)="ls.toggle()" title="Switch Language / भाषा बदला">
+        🌐 A / आ {{ t('util.langBtn') }}
+      </button>
+      <a *ngIf="!isPortal" routerLink="/college" class="web-login-pill">🔒 {{ t('util.portalLogin') }}</a>
+    </div>
+  </div>
+</div>
+
+<!-- Header with Emblem -->
+<header class="main-header no-print">
+  <div class="header-inner">
+    <a routerLink="/" class="brand-link">
+      <div class="emblem-circle">
+        <span class="star">★</span>
+        <span class="text">AICTE</span>
+      </div>
+      <div>
+        <h1 class="hindi-title">अखिल भारतीय तकनीकी शिक्षा परिषद् <span class="badge-reg">Regulation Bureau</span></h1>
+        <h2 class="eng-title">{{ t('header.engTitle') }}</h2>
+        <p class="moe-text">{{ t('header.moe') }}</p>
+      </div>
+    </a>
+
+    <div class="header-right">
+      <div class="apaar-tag">
+        <strong>{{ t('header.apaarTag') }}</strong>
+        <p>{{ t('header.apaarSub') }}</p>
+      </div>
+      <div class="status-indicator">
+        <span class="pulsing-dot"></span>
+        <span>{{ t('header.gateway') }}</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Main Navigation Bar -->
+<nav class="main-nav no-print">
+  <div class="nav-inner">
+    <div class="nav-links">
+      <!-- On a dedicated portal, ONLY that portal is visible (no names of other portals) -->
+      <ng-container *ngIf="isPortal; else homeNav">
+        <span class="portal-only-label">
+          <ng-container [ngSwitch]="currentPortal">
+            <span *ngSwitchCase="'student'">🎓 {{ t('nav.student') }}</span>
+            <span *ngSwitchCase="'college'">🏛️ {{ t('nav.college') }}</span>
+            <span *ngSwitchCase="'aicte'">🛡️ {{ t('nav.aicte') }}</span>
+          </ng-container>
+        </span>
+      </ng-container>
+      <ng-template #homeNav>
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">{{ t('nav.home') }}</a>
+        <a routerLink="/student" routerLinkActive="active">{{ t('nav.student') }} <span class="nav-badge">{{ t('nav.studentBadge') }}</span></a>
+        <a routerLink="/college" routerLinkActive="active">{{ t('nav.college') }} <span class="nav-badge">{{ t('nav.collegeBadge') }}</span></a>
+        <a routerLink="/aicte" routerLinkActive="active">{{ t('nav.aicte') }} <span class="nav-badge">{{ t('nav.aicteBadge') }}</span></a>
+      </ng-template>
+    </div>
+    <div *ngIf="!isPortal">
+      <a routerLink="/student" class="verify-btn">✨ {{ t('nav.verifyBtn') }}</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Page Content -->
+<main class="page-content">
+  <router-outlet></router-outlet>
+</main>
+
+<!-- Floating AICTE Sahayak Bot Widget -->
+<div class="bot-floating-widget no-print">
+  <button *ngIf="!botOpen" (click)="toggleBot()" class="bot-bubble">
+    <span class="bot-icon">🤖</span>
+    <span class="bot-title">AICTE Sahayak</span>
+  </button>
+
+  <div *ngIf="botOpen" class="bot-window gov-card">
+    <div class="bot-header">
+      <div class="bot-head-left">
+        <span>🤖</span>
+        <div>
+          <h4>{{ t('bot.title') }}</h4>
+          <small>{{ t('bot.sub') }}</small>
+        </div>
+      </div>
+      <button (click)="toggleBot()" class="bot-close">✕</button>
+    </div>
+
+    <div class="bot-messages">
+      <div *ngFor="let m of botMessages" [ngClass]="m.sender" class="msg-bubble">
+        {{ m.key ? t(m.key) : m.text }}
+      </div>
+    </div>
+
+    <div class="bot-faq">
+      <button (click)="sendBotMessage(t('bot.q1'))">{{ t('bot.q1') }}</button>
+      <button (click)="sendBotMessage(t('bot.q2'))">{{ t('bot.q2') }}</button>
+      <button (click)="sendBotMessage(t('bot.q3'))">{{ t('bot.q3') }}</button>
+      <button (click)="sendBotMessage(t('bot.q4'))">{{ t('bot.q4') }}</button>
+      <button (click)="sendBotMessage(t('bot.q5'))">{{ t('bot.q5') }}</button>
+      <button (click)="sendBotMessage(t('bot.q6'))">{{ t('bot.q6') }}</button>
+      <button (click)="sendBotMessage(t('bot.q7'))">{{ t('bot.q7') }}</button>
+      <button (click)="sendBotMessage(t('bot.q8'))">{{ t('bot.q8') }}</button>
+    </div>
+
+    <div class="bot-input-row">
+      <input type="text" [(ngModel)]="botInput" (keyup.enter)="sendBotMessage()" [placeholder]="t('bot.placeholder')" />
+      <button (click)="sendBotMessage()">{{ t('bot.send') }}</button>
+    </div>
+  </div>
+</div>
+
+<!-- Government Footer -->
+<footer class="main-footer no-print">
+  <!-- Security Bar -->
+  <div class="security-strip">
+    <div class="sec-inner">
+      <span>🛡️ {{ t('footer.security') }}</span>
+      <div class="sec-badges">
+        <span class="sec-pill">🔒 {{ t('footer.secEncrypt') }}</span>
+        <span class="sec-pill">✅ {{ t('footer.secConsent') }}</span>
+        <span class="sec-pill">📜 {{ t('footer.secLedger') }}</span>
+        <span class="sec-pill">📡 {{ t('footer.secBroker') }}</span>
+        <span class="sec-pill">📊 {{ t('footer.secExcel') }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-inner">
+    <div class="footer-col">
+      <h3>{{ t('footer.council') }}</h3>
+      <p class="reg-text">{{ t('footer.bureau') }}</p>
+      <p class="addr">{{ t('footer.addr') }}</p>
+    </div>
+
+    <div class="footer-col" *ngIf="!isPortal">
+      <h4>{{ t('footer.portals') }}</h4>
+      <ul>
+        <li><a routerLink="/student">{{ t('footer.pStudent') }}</a></li>
+        <li><a routerLink="/college">{{ t('footer.pCollege') }}</a></li>
+        <li><a routerLink="/aicte">{{ t('footer.pAicte') }}</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>{{ t('footer.standards') }}</h4>
+      <ul>
+        <li>{{ t('footer.s1') }}</li>
+        <li>{{ t('footer.s2') }}</li>
+        <li>{{ t('footer.s3') }}</li>
+        <li>{{ t('footer.s4') }}</li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <div class="platform-box">
+        <div class="platform-head">
+          <span>{{ t('footer.boxTitle') }}</span>
+          <span class="platform-code">{{ t('footer.boxCode') }}</span>
+        </div>
+        <p>{{ t('footer.boxDesc') }}</p>
+        <small>{{ t('footer.boxTheme') }}</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="copyright-bar">
+    {{ t('footer.copyright') }}
+  </div>
+</footer>

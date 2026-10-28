@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: apaar-backend
+    ports:
+      - "8085:8085"
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: apaar-frontend
+    ports:
+      - "80:80"
+      - "4200:80"
+    depends_on:
+      - backend
+    restart: always
