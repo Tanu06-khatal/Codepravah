@@ -56,7 +56,7 @@ export class ApaarService {
       if (customUrl) return customUrl;
       const host = window.location.hostname;
       if (host !== 'localhost' && host !== '127.0.0.1') {
-        return 'https://apaar-backend.onrender.com/api';
+        return 'https://codepravah.onrender.com/api';
       }
     }
     return 'http://localhost:8085/api';

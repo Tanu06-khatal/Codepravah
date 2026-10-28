@@ -11,9 +11,9 @@
 
 | Component | Cloud Platform | Live Production URL | Health Check / Status |
 | :--- | :--- | :--- | :---: |
-| **Frontend Portal** | Render Static Cloud | **[https://aict-apaar-verify.onrender.com](https://aict-apaar-verify.onrender.com)** | 🟢 `Active (200 OK)` |
-| **Backend REST API** | Render Docker Cloud | **[https://apaar-backend.onrender.com](https://apaar-backend.onrender.com)** | 🟢 `Active (200 OK)` |
-| **API Health Endpoint** | Spring Boot 3 | `https://apaar-backend.onrender.com/api/college/stats` | 🟢 `Live JSON Feed` |
+| **Frontend Portal** | Render Static Cloud | **[https://codepravah-frontend.onrender.com](https://codepravah-frontend.onrender.com)** | 🟢 `Active (200 OK)` |
+| **Backend REST API** | Render Docker Cloud | **[https://codepravah.onrender.com](https://codepravah.onrender.com)** | 🟢 `Active (200 OK)` |
+| **API Health Endpoint** | Spring Boot 3 | `https://codepravah.onrender.com/api/aicte/stats` | 🟢 `Live JSON Feed` |
 
 ---
 
