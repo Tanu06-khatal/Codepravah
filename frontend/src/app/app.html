@@ -15,7 +15,7 @@
       <button type="button" class="lang-tag" (click)="ls.toggle()" title="Switch Language / भाषा बदला">
         🌐 A / आ {{ t('util.langBtn') }}
       </button>
-      <a *ngIf="!isPortal" routerLink="/college" class="web-login-pill">🔒 {{ t('util.portalLogin') }}</a>
+      <a routerLink="/college" class="web-login-pill">🔒 {{ t('util.portalLogin') }}</a>
     </div>
   </div>
 </div>
@@ -52,25 +52,13 @@
 <nav class="main-nav no-print">
   <div class="nav-inner">
     <div class="nav-links">
-      <!-- On a dedicated portal, ONLY that portal is visible (no names of other portals) -->
-      <ng-container *ngIf="isPortal; else homeNav">
-        <span class="portal-only-label">
-          <ng-container [ngSwitch]="currentPortal">
-            <span *ngSwitchCase="'student'">🎓 {{ t('nav.student') }}</span>
-            <span *ngSwitchCase="'college'">🏛️ {{ t('nav.college') }}</span>
-            <span *ngSwitchCase="'aicte'">🛡️ {{ t('nav.aicte') }}</span>
-          </ng-container>
-        </span>
-      </ng-container>
-      <ng-template #homeNav>
-        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">{{ t('nav.home') }}</a>
-        <a routerLink="/student" routerLinkActive="active">{{ t('nav.student') }} <span class="nav-badge">{{ t('nav.studentBadge') }}</span></a>
-        <a routerLink="/college" routerLinkActive="active">{{ t('nav.college') }} <span class="nav-badge">{{ t('nav.collegeBadge') }}</span></a>
-        <a routerLink="/aicte" routerLinkActive="active">{{ t('nav.aicte') }} <span class="nav-badge">{{ t('nav.aicteBadge') }}</span></a>
-      </ng-template>
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">{{ t('nav.home') }}</a>
+      <a routerLink="/student" routerLinkActive="active">{{ t('nav.student') }} <span class="nav-badge">{{ t('nav.studentBadge') }}</span></a>
+      <a routerLink="/college" routerLinkActive="active">{{ t('nav.college') }} <span class="nav-badge">{{ t('nav.collegeBadge') }}</span></a>
+      <a routerLink="/aicte" routerLinkActive="active">{{ t('nav.aicte') }} <span class="nav-badge">{{ t('nav.aicteBadge') }}</span></a>
     </div>
-    <div *ngIf="!isPortal">
-      <a routerLink="/student" class="verify-btn">✨ {{ t('nav.verifyBtn') }}</a>
+    <div>
+      <a routerLink="/student" class="verify-btn">+ {{ t('nav.verifyBtn') }}</a>
     </div>
   </div>
 </nav>
