@@ -108,7 +108,7 @@ import { timeout, catchError, of } from 'rxjs';
             <!-- Student Photograph (included in report) -->
             <div class="photo-col">
               <div class="photo-frame">
-                <img *ngIf="student.photoUrl" [src]="apaarService.fileUrl(student.photoUrl)" [alt]="student.name" class="photo-img" />
+                <img *ngIf="student.photoUrl" [src]="apaarService.fileUrl(student.photoUrl)" (error)="$any($event.target).src = student.photoUrl" [alt]="student.name" class="photo-img" />
                 <div *ngIf="!student.photoUrl" class="photo-initials" [style.background]="avatarColor">
                   {{ initials(student.name) }}
                 </div>
@@ -375,7 +375,8 @@ export class StudentComponent implements OnInit {
       tenthPercent: 94.6,
       twelfthPercent: 92.4,
       digilockerVerified: true,
-      state: 'Delhi'
+      state: 'Delhi',
+      photoUrl: '/photos/123456789012.jpg'
     },
     {
       apaarId: '100000000005',
@@ -397,6 +398,7 @@ export class StudentComponent implements OnInit {
       twelfthPercent: 82.5,
       digilockerVerified: true,
       state: 'Delhi',
+      photoUrl: '/photos/123456789012.jpg',
       duplicateCollegeName: 'Uttar Pradesh Council of Technology',
       duplicateCollegeId: 'COL005',
       flagReason: 'Simultaneous regular enrollment active at UP Council of Technology under UID UP-2022-892'
@@ -420,7 +422,8 @@ export class StudentComponent implements OnInit {
       tenthPercent: 89.4,
       twelfthPercent: 88.0,
       digilockerVerified: false,
-      state: 'Delhi'
+      state: 'Delhi',
+      photoUrl: '/photos/123456789012.jpg'
     },
     {
       apaarId: '100000000012',
@@ -442,6 +445,7 @@ export class StudentComponent implements OnInit {
       twelfthPercent: 94.2,
       digilockerVerified: true,
       state: 'Delhi',
+      photoUrl: '/photos/123456789012.jpg',
       duplicateCollegeName: 'Bangalore Technical & Science Academy',
       duplicateCollegeId: 'COL003',
       flagReason: 'Dual enrolment recorded across Delhi and Karnataka colleges in AY 2024-25'
@@ -511,7 +515,7 @@ export class StudentComponent implements OnInit {
 
       // Silent non-blocking refresh so the record always reflects the live database
       this.apaarService.verifyApaar(rawInput).pipe(
-        timeout(1200),
+        timeout(12000),
         catchError(() => of(null))
       ).subscribe(res => {
         if (res && res.success && res.data) {
@@ -528,7 +532,7 @@ export class StudentComponent implements OnInit {
     this.cdr.detectChanges();
 
     this.apaarService.verifyApaar(rawInput).pipe(
-      timeout(4000),
+      timeout(15000),
       catchError(() => of(null))
     ).subscribe({
       next: (res) => {
