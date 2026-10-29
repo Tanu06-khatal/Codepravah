@@ -1,7 +1,7 @@
 services:
-  # AICTE APAAR Backend - Spring Boot 3 + Java 21 Web Service
+  # Codepravah Backend - Spring Boot 3 + Java 21 Web Service
   - type: web
-    name: apaar-backend
+    name: codepravah
     env: docker
     dockerContext: ./backend
     dockerfilePath: ./backend/Dockerfile
@@ -12,9 +12,9 @@ services:
       - key: PORT
         value: 8085
 
-  # AICTE APAAR Frontend - Angular 21 Static Site
+  # Codepravah Frontend - Angular 21 Static Site
   - type: web
-    name: apaar-frontend
+    name: codepravah-frontend
     env: static
     rootDir: frontend
     buildCommand: npm install && npm run build
@@ -25,4 +25,3 @@ services:
       - type: rewrite
         source: /*
         destination: /index.html
-

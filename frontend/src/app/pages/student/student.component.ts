@@ -32,12 +32,34 @@ import { timeout, catchError, of } from 'rxjs';
               type="text"
               [(ngModel)]="apaarInput"
               name="apaarInput"
-              [placeholder]="t('stu.idPlaceholder')"
+              placeholder="e.g. APAAR12345678 or APAAR10000003"
               class="apaar-input"
             />
             <button type="submit" class="gov-btn-primary" [disabled]="loading">
               {{ loading ? t('stu.fetching') : t('stu.fetchBtn') }}
             </button>
+          </div>
+
+          <!-- Demo Chips matching the original UI -->
+          <div class="demo-chips-row">
+            <span class="demo-chips-label">{{ isHindi ? 'डेमो चिप्स:' : 'Demo Chips:' }}</span>
+            <div class="chips-list">
+              <button type="button" class="demo-chip chip-verified" (click)="setApaar('123456789012')">
+                <span class="chip-status">{{ isHindi ? 'सत्यापित:' : 'Verified:' }}</span> 123456789012
+              </button>
+              <button type="button" class="demo-chip chip-pending" (click)="setApaar('100000000013')">
+                <span class="chip-status">{{ isHindi ? 'लंबित:' : 'Pending:' }}</span> 100000000013
+              </button>
+              <button type="button" class="demo-chip chip-dup" (click)="setApaar('100000000005')">
+                <span class="chip-status">{{ isHindi ? 'डुप्लिकेट:' : 'Duplicate:' }}</span> 100000000005
+              </button>
+              <button type="button" class="demo-chip chip-dup" (click)="setApaar('100000000012')">
+                <span class="chip-status">{{ isHindi ? 'डुप्लिकेट #2:' : 'Duplicate #2:' }}</span> 100000000012
+              </button>
+              <button type="button" class="demo-chip chip-legacy" (click)="setApaar('APAAR12345678')">
+                <span class="chip-status">{{ isHindi ? 'लेगेसी:' : 'Legacy:' }}</span> APAAR12345678
+              </button>
+            </div>
           </div>
 
           <div class="consent-row">
@@ -108,7 +130,7 @@ import { timeout, catchError, of } from 'rxjs';
             <!-- Student Photograph (included in report) -->
             <div class="photo-col">
               <div class="photo-frame">
-                <img *ngIf="student.photoUrl" [src]="apaarService.fileUrl(student.photoUrl)" (error)="$any($event.target).src = student.photoUrl" [alt]="student.name" class="photo-img" />
+                <img *ngIf="student.photoUrl" [src]="student.photoUrl" (error)="$any($event.target).src = '/photos/123456789012.jpg'" [alt]="student.name" class="photo-img" />
                 <div *ngIf="!student.photoUrl" class="photo-initials" [style.background]="avatarColor">
                   {{ initials(student.name) }}
                 </div>
@@ -191,7 +213,7 @@ import { timeout, catchError, of } from 'rxjs';
 
               <div class="action-buttons no-print">
                 <button (click)="print()" class="gov-btn-primary full-btn">🖨️ {{ t('stu.printBtn') }}</button>
-                <button (click)="downloadReport()" class="gov-btn-saffron full-btn" style="margin-top: 8px;">📄 {{ t('std.downloadReport') }}</button>
+                <button (click)="downloadReport()" class="gov-btn-saffron full-btn" style="margin-top: 8px;">📄 {{ t('std.downloadReport') || 'Download Official Report (PDF)' }}</button>
               </div>
             </div>
           </div>
@@ -218,6 +240,16 @@ import { timeout, catchError, of } from 'rxjs';
     .lookup-form label { display: block; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 8px; }
     .input-row { display: flex; gap: 10px; }
     .apaar-input { flex: 1; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: monospace; font-size: 14px; }
+    .demo-chips-row { display: flex; align-items: center; gap: 10px; margin: 12px 0; flex-wrap: wrap; }
+    .demo-chips-label { font-size: 11px; font-weight: 700; color: #64748b; }
+    .chips-list { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .demo-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; font-family: monospace; cursor: pointer; transition: all 0.2s; color: #1e293b; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .demo-chip:hover { border-color: #0F2C61; background: #f8fafc; transform: translateY(-1px); }
+    .demo-chip .chip-status { font-weight: 700; font-family: sans-serif; font-size: 11px; }
+    .demo-chip.chip-verified .chip-status { color: #16a34a; }
+    .demo-chip.chip-pending .chip-status { color: #d97706; }
+    .demo-chip.chip-dup .chip-status { color: #dc2626; }
+    .demo-chip.chip-legacy .chip-status { color: #475569; }
     .consent-row { display: flex; gap: 8px; font-size: 12px; color: #475569; border-top: 1px solid #f1f5f9; padding-top: 12px; margin-top: 12px; }
     .error-banner { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 14px; border-radius: 8px; font-size: 13px; margin-bottom: 20px; }
     .timeline-card { padding: 20px; margin-bottom: 20px; }
@@ -293,7 +325,7 @@ export class StudentComponent implements OnInit {
   loading: boolean = false;
   student: Student | null = null;
   error: string | null = null;
-  consentGiven: boolean = false;
+  consentGiven: boolean = true;
   qrHash: string = 'SHA-256: …';
 
   constructor(
@@ -305,6 +337,16 @@ export class StudentComponent implements OnInit {
 
   t(key: string): string {
     return this.ls.t(key);
+  }
+
+  get isHindi(): boolean {
+    return this.ls.lang === 'hi';
+  }
+
+  setApaar(id: string) {
+    this.apaarInput = id;
+    this.consentGiven = true;
+    this.verify();
   }
 
   /** Initials shown inside the photograph frame when no photo is on record. */
@@ -337,7 +379,6 @@ export class StudentComponent implements OnInit {
     }
     let x = h >>> 0;
     for (let i = 0; i < 121; i++) {
-      // xorshift for deterministic pattern
       x ^= x << 13; x >>>= 0;
       x ^= x >> 17;
       x ^= x << 5; x >>>= 0;
@@ -451,6 +492,50 @@ export class StudentComponent implements OnInit {
       flagReason: 'Dual enrolment recorded across Delhi and Karnataka colleges in AY 2024-25'
     },
     {
+      apaarId: '100000000024',
+      name: 'Pratik Bhalerao',
+      course: 'B.Tech Instrumentation & Control Engineering',
+      academicYear: 4,
+      category: 'General',
+      abcCredits: 132,
+      admissionDate: '2022-08-10',
+      status: 'verified',
+      enrollmentNo: '2022-IC-019',
+      dob: '2003-11-20',
+      gender: 'Male',
+      mobile: '+91 98230 11223',
+      aadhaarLast4: '0024',
+      collegeId: 'COL002',
+      collegeName: 'Maharashtra National Institute of Technology',
+      tenthPercent: 91.2,
+      twelfthPercent: 89.8,
+      digilockerVerified: true,
+      state: 'Maharashtra',
+      photoUrl: '/photos/100000000024.jpg'
+    },
+    {
+      apaarId: '100000000025',
+      name: 'Sneha Patil',
+      course: 'B.Tech Civil Engineering',
+      academicYear: 3,
+      category: 'OBC',
+      abcCredits: 98,
+      admissionDate: '2023-08-12',
+      status: 'verified',
+      enrollmentNo: '2023-CE-088',
+      dob: '2004-03-15',
+      gender: 'Female',
+      mobile: '+91 98230 44556',
+      aadhaarLast4: '0025',
+      collegeId: 'COL002',
+      collegeName: 'Maharashtra National Institute of Technology',
+      tenthPercent: 88.4,
+      twelfthPercent: 86.0,
+      digilockerVerified: true,
+      state: 'Maharashtra',
+      photoUrl: '/photos/100000000025.jpg'
+    },
+    {
       apaarId: 'APAAR10000003',
       name: 'Rohan Deshmukh',
       course: 'B.Tech Electronics & Communication',
@@ -469,7 +554,8 @@ export class StudentComponent implements OnInit {
       tenthPercent: 88.5,
       twelfthPercent: 86.2,
       digilockerVerified: false,
-      state: 'Maharashtra'
+      state: 'Maharashtra',
+      photoUrl: '/photos/123456789012.jpg'
     }
   ];
 
@@ -486,6 +572,9 @@ export class StudentComponent implements OnInit {
     }
     if (q === 'apaar10000013' || q === '100000000013') {
       return this.fallbackStudents.find(s => s.apaarId === '100000000013') || null;
+    }
+    if (q === 'apaar10000024' || q === '100000000024') {
+      return this.fallbackStudents.find(s => s.apaarId === '100000000024') || null;
     }
     return this.fallbackStudents.find(s => s.apaarId.toLowerCase() === q || s.apaarId.toLowerCase().includes(q)) || null;
   }
@@ -519,7 +608,9 @@ export class StudentComponent implements OnInit {
         catchError(() => of(null))
       ).subscribe(res => {
         if (res && res.success && res.data) {
-          this.student = res.data;
+          const live = res.data;
+          live.photoUrl = live.photoUrl || this.resolvePhotoUrl(live.apaarId);
+          this.student = live;
           this.setQrHash();
           this.cdr.detectChanges();
         }
@@ -538,7 +629,9 @@ export class StudentComponent implements OnInit {
       next: (res) => {
         this.loading = false;
         if (res && res.success && res.data) {
-          this.student = res.data;
+          const live = res.data;
+          live.photoUrl = live.photoUrl || this.resolvePhotoUrl(live.apaarId);
+          this.student = live;
           this.setQrHash();
         } else {
           this.error = this.t('stu.errNotFound');
@@ -546,6 +639,14 @@ export class StudentComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  private resolvePhotoUrl(apaarId: string): string {
+    const known = ['100000000024', '100000000025', '100000000041', '100000000071', '100000000111', '123456789012'];
+    if (known.includes(apaarId)) {
+      return `/photos/${apaarId}.jpg`;
+    }
+    return '/photos/123456789012.jpg';
   }
 
   private setQrHash() {
@@ -567,12 +668,16 @@ export class StudentComponent implements OnInit {
   /** Official Student Academic Profile & Verification Report (backend PDF). */
   downloadReport() {
     if (!this.student) return;
+    const cleanName = (this.student.name || 'Student').replace(/\s+/g, '_');
+    const cleanState = (this.student.state || 'India').replace(/\s+/g, '_');
+    const filename = `Student_Report_${cleanName}_${cleanState}.pdf`;
+
     this.apaarService.downloadStudentReportPdf(this.student.apaarId).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `Student_Report_${this.student!.apaarId.replace(/[^A-Za-z0-9]/g, '')}.pdf`;
+        a.download = filename;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

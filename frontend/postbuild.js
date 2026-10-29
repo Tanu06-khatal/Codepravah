@@ -17,5 +17,8 @@ if (fs.existsSync(browserDir)) {
     fs.copyFileSync(indexHtml, path.join(routeDir, 'index.html'));
   });
 
-  console.log('✓ SPA static routes and 404.html generated successfully.');
+  // 3. Create _redirects file for static hosts that support it
+  fs.writeFileSync(path.join(browserDir, '_redirects'), '/*  /index.html  200\n');
+
+  console.log('✓ SPA static routes, 404.html, and _redirects generated successfully.');
 }
