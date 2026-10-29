@@ -32,34 +32,12 @@ import { timeout, catchError, of } from 'rxjs';
               type="text"
               [(ngModel)]="apaarInput"
               name="apaarInput"
-              placeholder="e.g. APAAR12345678 or APAAR10000003"
+              [placeholder]="t('stu.idPlaceholder')"
               class="apaar-input"
             />
             <button type="submit" class="gov-btn-primary" [disabled]="loading">
               {{ loading ? t('stu.fetching') : t('stu.fetchBtn') }}
             </button>
-          </div>
-
-          <!-- Demo Chips matching the original UI -->
-          <div class="demo-chips-row">
-            <span class="demo-chips-label">{{ isHindi ? 'डेमो चिप्स:' : 'Demo Chips:' }}</span>
-            <div class="chips-list">
-              <button type="button" class="demo-chip chip-verified" (click)="setApaar('123456789012')">
-                <span class="chip-status">{{ isHindi ? 'सत्यापित:' : 'Verified:' }}</span> 123456789012
-              </button>
-              <button type="button" class="demo-chip chip-pending" (click)="setApaar('100000000013')">
-                <span class="chip-status">{{ isHindi ? 'लंबित:' : 'Pending:' }}</span> 100000000013
-              </button>
-              <button type="button" class="demo-chip chip-dup" (click)="setApaar('100000000005')">
-                <span class="chip-status">{{ isHindi ? 'डुप्लिकेट:' : 'Duplicate:' }}</span> 100000000005
-              </button>
-              <button type="button" class="demo-chip chip-dup" (click)="setApaar('100000000012')">
-                <span class="chip-status">{{ isHindi ? 'डुप्लिकेट #2:' : 'Duplicate #2:' }}</span> 100000000012
-              </button>
-              <button type="button" class="demo-chip chip-legacy" (click)="setApaar('APAAR12345678')">
-                <span class="chip-status">{{ isHindi ? 'लेगेसी:' : 'Legacy:' }}</span> APAAR12345678
-              </button>
-            </div>
           </div>
 
           <div class="consent-row">
@@ -93,7 +71,7 @@ import { timeout, catchError, of } from 'rxjs';
               <span class="step-num">✓</span>
               <div>
                 <strong>{{ t('stu.t2') }}</strong>
-                <p>{{ student.abcCredits }} {{ t('stu.fCreditsVal') }} {{ t('stu.t2d') }}</p>
+                <p>{{ student.abcCredits }} {{ t('stu.t2d') }}</p>
               </div>
             </div>
             <div class="step-box" [ngClass]="student.status">
@@ -240,16 +218,6 @@ import { timeout, catchError, of } from 'rxjs';
     .lookup-form label { display: block; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 8px; }
     .input-row { display: flex; gap: 10px; }
     .apaar-input { flex: 1; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: monospace; font-size: 14px; }
-    .demo-chips-row { display: flex; align-items: center; gap: 10px; margin: 12px 0; flex-wrap: wrap; }
-    .demo-chips-label { font-size: 11px; font-weight: 700; color: #64748b; }
-    .chips-list { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-    .demo-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; font-family: monospace; cursor: pointer; transition: all 0.2s; color: #1e293b; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-    .demo-chip:hover { border-color: #0F2C61; background: #f8fafc; transform: translateY(-1px); }
-    .demo-chip .chip-status { font-weight: 700; font-family: sans-serif; font-size: 11px; }
-    .demo-chip.chip-verified .chip-status { color: #16a34a; }
-    .demo-chip.chip-pending .chip-status { color: #d97706; }
-    .demo-chip.chip-dup .chip-status { color: #dc2626; }
-    .demo-chip.chip-legacy .chip-status { color: #475569; }
     .consent-row { display: flex; gap: 8px; font-size: 12px; color: #475569; border-top: 1px solid #f1f5f9; padding-top: 12px; margin-top: 12px; }
     .error-banner { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 14px; border-radius: 8px; font-size: 13px; margin-bottom: 20px; }
     .timeline-card { padding: 20px; margin-bottom: 20px; }
@@ -325,7 +293,7 @@ export class StudentComponent implements OnInit {
   loading: boolean = false;
   student: Student | null = null;
   error: string | null = null;
-  consentGiven: boolean = true;
+  consentGiven: boolean = false;
   qrHash: string = 'SHA-256: …';
 
   constructor(
@@ -337,16 +305,6 @@ export class StudentComponent implements OnInit {
 
   t(key: string): string {
     return this.ls.t(key);
-  }
-
-  get isHindi(): boolean {
-    return this.ls.lang === 'hi';
-  }
-
-  setApaar(id: string) {
-    this.apaarInput = id;
-    this.consentGiven = true;
-    this.verify();
   }
 
   /** Initials shown inside the photograph frame when no photo is on record. */
