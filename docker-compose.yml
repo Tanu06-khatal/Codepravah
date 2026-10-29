@@ -5,7 +5,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: apaar-backend
+    container_name: codepravah-backend
     ports:
       - "8085:8085"
     restart: always
@@ -14,7 +14,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: apaar-frontend
+    container_name: codepravah-frontend
     ports:
       - "80:80"
       - "4200:80"
